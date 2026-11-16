@@ -34,6 +34,8 @@ func _physics_process(delta: float) -> void:
 	if not spawned:
 		if world.is_generated:
 			position = world.get_city_spawn_position()
+			# Camera looks along local -Z; face +Z into the city, not the world edge.
+			rotation.y = PI
 			spawned = true
 		return
 	if driven_vehicle != null:

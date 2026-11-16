@@ -64,7 +64,8 @@ static func build(snapshot: PackedByteArray, light_snapshot: PackedByteArray, sk
 				var variation := 0.94 + tone * 0.12
 				var base_color: Color = palette[block_id]
 				if emissive_ids.has(block_id):
-					base_color = Color(base_color.r * 1.5, base_color.g * 1.5, base_color.b * 1.5, 1.0)
+					var boost: float = 1.15 if glow_ids.has(block_id) else 1.5
+					base_color = Color(base_color.r * boost, base_color.g * boost, base_color.b * boost, 1.0)
 				var fixture: StringName = fixture_ids.get(block_id, &"")
 				if fixture != &"":
 					_append_fixture(vertices, normals, colors, uv2, cell, fixture, base_color, float(int(light_snapshot[cell_index])) / 15.0, sky_snapshot[cell_index] != 0, tone)

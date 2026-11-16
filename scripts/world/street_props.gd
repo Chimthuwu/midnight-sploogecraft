@@ -5,19 +5,16 @@ class_name StreetProps
 # prop pack. Vehicles and buildings stay blocks/meshes; these are quiet details
 # that make the sidewalks feel inhabited.
 const MODEL_SCENES := [
-	preload("res://assets/props/free_city/tree2.glb"),
-	preload("res://assets/props/free_city/tree6.glb"),
 	preload("res://assets/props/free_city/garbageBin.glb"),
 	preload("res://assets/props/free_city/bench2.glb"),
 	preload("res://assets/props/free_city/fireHydrant.glb"),
 	preload("res://assets/props/free_city/trashBag1.glb"),
 	preload("res://assets/props/free_city/trafficCone.glb")
 ]
-const TARGET_HEIGHTS := [4.2, 4.8, 1.3, 0.9, 1.5, 0.8, 1.2]
+const TARGET_HEIGHTS := [1.3, 0.9, 1.5, 0.8, 1.2]
 const PROP_COLORS := [
-	Color(0.10, 0.20, 0.15), Color(0.12, 0.22, 0.16), Color(0.26, 0.27, 0.29),
-	Color(0.22, 0.20, 0.17), Color(0.32, 0.14, 0.11), Color(0.20, 0.18, 0.16),
-	Color(0.34, 0.27, 0.12)
+	Color(0.26, 0.27, 0.29), Color(0.22, 0.20, 0.17), Color(0.32, 0.14, 0.11),
+	Color(0.20, 0.18, 0.16), Color(0.34, 0.27, 0.12)
 ]
 
 var world: VoxelWorld

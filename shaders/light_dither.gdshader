@@ -115,9 +115,9 @@ void fragment() {
 	// every voxel edge, so 1 m faces stop reading as flat plastic.
 	vec3 detail_position = fragment_world_position * 2.4;
 	float mottle = value_noise(detail_position) * 0.6 + value_noise(detail_position * 3.1) * 0.4;
-	float grain = mix(0.87, 1.13, mottle);
+	float grain = mix(0.80, 1.12, mottle);
 	vec3 cell = fract(fragment_world_position);
 	float edge_distance = min(min(cell.x, 1.0 - cell.x), min(min(cell.y, 1.0 - cell.y), min(cell.z, 1.0 - cell.z)));
-	float bevel = mix(0.79, 1.0, smoothstep(0.0, 0.08, edge_distance));
-	ALBEDO = COLOR.rgb * graded_light * light_tint * grain * bevel;
+	float bevel = mix(0.82, 1.0, smoothstep(0.0, 0.10, edge_distance));
+	ALBEDO = COLOR.rgb * graded_light * light_tint * grain * bevel * mix(0.84, 1.0, value_noise(vec3(fragment_world_position.x * 7.0, fragment_world_position.y * 0.32, fragment_world_position.z * 7.0)));
 }

@@ -74,12 +74,12 @@ func _update_phase() -> void:
 	if is_instance_valid(environment):
 		environment.background_color = top_color
 		environment.fog_light_color = horizon_color.lerp(DAY_HORIZON_COLOR, 0.25 * daylight)
-		environment.fog_light_energy = lerpf(0.34, 0.62, daylight)
-		environment.fog_density = lerpf(0.0045, 0.0016, daylight)
+		environment.fog_light_energy = lerpf(0.42, 0.62, daylight)
+		environment.fog_density = lerpf(0.0038, 0.0016, daylight)
 		environment.ambient_light_color = top_color
 		environment.ambient_light_energy = ambient_level
 		if environment.glow_enabled:
-			environment.glow_intensity = lerpf(1.30, 0.85, daylight)
+			environment.glow_intensity = lerpf(1.05, 0.85, daylight)
 	if is_instance_valid(world):
 		world.set_ambient_sky_level(ambient_level)
 		_update_sun(star_energy)

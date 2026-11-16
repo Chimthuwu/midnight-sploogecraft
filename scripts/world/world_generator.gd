@@ -137,10 +137,14 @@ static func generate_chunk(chunk_index: int, world_seed: int, heights: PackedInt
 
 
 static func _district(gx: int, gz: int) -> int:
-	if gx == 0 or gz == 0:
-		return DISTRICT_INDUSTRIAL
+	# The spawn quadrant is an entertainment/neon district so the city's identity
+	# is visible the moment the player steps outside, not 40 blocks away.
 	if gx == 5 or gz == 5:
 		return DISTRICT_OUTSKIRTS
+	if gx <= 2 and gz <= 2:
+		return DISTRICT_NEON
+	if (gx <= 1 and gz >= 3) or (gz <= 1 and gx >= 3):
+		return DISTRICT_INDUSTRIAL
 	if gx >= 2 and gx <= 3 and gz >= 2 and gz <= 3:
 		return DISTRICT_DOWNTOWN
 	if gx >= 3 and gz >= 2:
@@ -155,7 +159,7 @@ static func _style_for(district: int, ids: Dictionary) -> Dictionary:
 			style = {
 				"facades": [ids[&"facade_panel"], ids[&"facade_dark"], ids[&"facade_mid"]],
 				"height_min": 24, "height_var": 16,
-				"win_x": 2, "win_y": 2, "lit_chance": 72,
+				"win_x": 2, "win_y": 2, "lit_chance": 52,
 				"neon": -1, "strip": false, "bands": 1,
 				"shop": false, "balcony": false, "entrance": true,
 				"roof": "crown", "alley": false, "graffiti": 0, "garage": false
@@ -164,8 +168,8 @@ static func _style_for(district: int, ids: Dictionary) -> Dictionary:
 			style = {
 				"facades": [ids[&"facade_dark"], ids[&"facade_brick"], ids[&"facade_mid"]],
 				"height_min": 9, "height_var": 12,
-				"win_x": 2, "win_y": 2, "lit_chance": 78,
-				"neon": ids[&"neon_pink"], "strip": true, "bands": 2,
+				"win_x": 2, "win_y": 2, "lit_chance": 55,
+				"neon": ids[&"neon_pink"], "strip": true, "bands": 0, "sign": 1,
 				"shop": true, "balcony": false, "entrance": true,
 				"roof": "billboard", "alley": true, "graffiti": 0, "garage": false
 			}
@@ -182,7 +186,7 @@ static func _style_for(district: int, ids: Dictionary) -> Dictionary:
 			style = {
 				"facades": [ids[&"facade_brick"], ids[&"facade_light"], ids[&"facade_mid"]],
 				"height_min": 8, "height_var": 9,
-				"win_x": 2, "win_y": 2, "lit_chance": 66,
+				"win_x": 2, "win_y": 2, "lit_chance": 50,
 				"neon": -1, "strip": false, "bands": 0,
 				"shop": false, "balcony": true, "entrance": true,
 				"roof": "ac", "alley": false, "graffiti": 0, "garage": false
@@ -191,8 +195,8 @@ static func _style_for(district: int, ids: Dictionary) -> Dictionary:
 			style = {
 				"facades": [ids[&"facade_dark"], ids[&"facade_brick"], ids[&"facade_mid"]],
 				"height_min": 5, "height_var": 6,
-				"win_x": 3, "win_y": 3, "lit_chance": 38,
-				"neon": ids[&"neon_red"], "strip": false, "bands": 0,
+				"win_x": 3, "win_y": 3, "lit_chance": 30,
+				"neon": ids[&"neon_red"], "strip": false, "bands": 0, "sign": 1,
 				"shop": false, "balcony": false, "entrance": true,
 				"roof": "antenna", "alley": true, "graffiti": 30, "garage": false
 			}
@@ -270,7 +274,7 @@ static func _stamp_tower(output: PackedByteArray, origin_x: int, origin_y: int, 
 	var facades: Array = style["facades"]
 	var primary: int = facades[rng.randi_range(0, facades.size() - 1)]
 	var secondary: int = facades[(rng.randi_range(0, facades.size() - 1) + 1) % facades.size()]
-	var lit_id: int = ids[&"glass_warm"] if rng.randf() < 0.55 else ids[&"glass_cyan"]
+	var lit_id: int = ids[&"glass_warm"] if rng.randf() < 0.75 else ids[&"glass_cyan"]
 	var dark_id: int = ids[&"glass_dark"]
 	var neon_id: int = int(style["neon"])
 	if neon_id < 0:
@@ -280,8 +284,9 @@ static func _stamp_tower(output: PackedByteArray, origin_x: int, origin_y: int, 
 	var lit_chance: int = int(style["lit_chance"])
 	var band_count: int = int(style["bands"])
 	var sign_face := rng.randi_range(0, 3)
-	var band_one := base_y + maxi(3, int(height * 0.45))
-	var band_two := base_y + maxi(4, int(height * 0.78))
+	var has_sign: bool = int(style.get("sign", 0)) > 0
+	var band_one := 0
+	var band_two := 0
 	var setback: bool = height >= 22 and width >= 9
 
 	for y in range(base_y, top_y + 1):
@@ -313,9 +318,9 @@ static func _stamp_tower(output: PackedByteArray, origin_x: int, origin_y: int, 
 						block_id = dark_id
 					elif bool(style["shop"]) and vertical == 0 and horizontal % 2 == 0:
 						block_id = lit_id
-					elif bool(style["strip"]) and face == sign_face and horizontal == 0 and vertical > 2:
-						block_id = neon_id
-					elif band_a or band_b:
+					elif has_sign and face == sign_face and horizontal >= mid - 1 and horizontal <= mid and vertical >= 5 and vertical <= 11:
+						block_id = ids[&"sign_panel"] if horizontal == mid - 1 else neon_id
+					elif bool(style["strip"]) and face == sign_face and horizontal == 0 and vertical >= 4 and vertical <= 14 and vertical % 3 != 2:
 						block_id = neon_id
 					elif int(style["graffiti"]) > 0 and vertical >= 2 and vertical <= 4 and horizontal % 3 == 0:
 						if int(_cell_hash(seed, x, y, z) % 100) < int(style["graffiti"]):
@@ -384,6 +389,20 @@ static func _stamp_plaza_monument(output: PackedByteArray, origin_x: int, origin
 				continue
 			_set_local(output, origin_x, origin_y, origin_z, center + dx, CITY_GROUND + 1, center + dz, ids[&"neon_yellow"])
 	_set_local(output, origin_x, origin_y, origin_z, center, CITY_GROUND + 7, center, ids[&"neon_sign"])
+
+	# Neon gateway over the road ahead of the spawn point: a landmark visible
+	# the moment the player looks down the street.
+	var arch_z := ROAD_LINE + 10
+	for post_x in [5, 13]:
+		for y in range(CITY_GROUND + 1, CITY_GROUND + 8):
+			_set_local(output, origin_x, origin_y, origin_z, post_x, y, arch_z, ids[&"facade_dark"])
+		for y in range(CITY_GROUND + 3, CITY_GROUND + 7, 2):
+			_set_local(output, origin_x, origin_y, origin_z, post_x, y, arch_z - 1, ids[&"neon_pink"])
+	for x in range(6, 13):
+		_set_local(output, origin_x, origin_y, origin_z, x, CITY_GROUND + 8, arch_z, ids[&"sign_panel"])
+		if x % 2 == 0:
+			_set_local(output, origin_x, origin_y, origin_z, x, CITY_GROUND + 7, arch_z, ids[&"neon_yellow"])
+	_set_local(output, origin_x, origin_y, origin_z, 9, CITY_GROUND + 9, arch_z, ids[&"neon_sign"])
 
 
 static func _line_index(coord: int) -> int:

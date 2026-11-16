@@ -10,6 +10,6 @@ night_seconds = 900.0
 dawn_seconds = 60.0
 day_sky_level = 0.6
 twilight_sky_level = 0.2
-night_sky_level = 0.075
+night_sky_level = 0.11
 day_sky_color = Color(0.20, 0.33, 0.58, 1)
 night_sky_color = Color(0.022, 0.026, 0.065, 1)
