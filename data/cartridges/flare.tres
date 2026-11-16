@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="CartridgeDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/cartridge_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+cartridge_id = &"flare"
+display_name = "FLARE"
+accent_color = Color(1, 0.46, 0.16, 1)
+action = "flare"
+energy_cost = 0.0
+minimum_light = 0
+range = 20.0
+gloom_noise = 6.0
+damage = 12.0
+light_level = 15
+light_block_id = &"torch"
+duration = 8.0

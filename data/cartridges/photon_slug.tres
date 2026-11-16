@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CartridgeDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/cartridge_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+cartridge_id = &"photon_slug"
+display_name = "PHOTON SLUG"
+accent_color = Color(1, 0.38, 0.86, 1)
+action = "photon"
+energy_cost = 0.0
+minimum_light = 0
+range = 28.0
+gloom_noise = 10.0
+damage = 20.0

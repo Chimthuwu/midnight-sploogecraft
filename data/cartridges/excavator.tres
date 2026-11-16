@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CartridgeDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/cartridge_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+cartridge_id = &"excavator"
+display_name = "EXCAVATOR ROUND"
+accent_color = Color(0.98, 0.72, 0.28, 1)
+action = "excavate"
+energy_cost = 0.0
+minimum_light = 0
+range = 12.0
+gloom_noise = 8.0

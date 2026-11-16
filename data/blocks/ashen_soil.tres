@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="BlockLightDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/light/block_light_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+block_id = &"ashen_soil"
+attenuation = 1
+albedo = Color(0.82, 0.71, 0.52, 1)
+rotted_variant_id = &"rotted_ashen_soil"

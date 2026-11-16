@@ -1,0 +1,132 @@
+; Lumenfall M1 world and player prototype.
+
+config_version=5
+
+[application]
+
+config/name="Lumenfall"
+run/main_scene="res://scenes/world/main.tscn"
+config/features=PackedStringArray("4.7")
+
+[display]
+
+window/size/viewport_width=854
+window/size/viewport_height=480
+window/size/window_width_override=1708
+window/size/window_height_override=960
+window/stretch/mode="viewport"
+window/stretch/aspect="keep"
+window/stretch/scale_mode="integer"
+
+[input]
+
+move_forward={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":87)]
+}
+move_back={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":83)]
+}
+move_left={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":65)]
+}
+move_right={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":68)]
+}
+move_up={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":32)]
+}
+move_down={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":4194325)]
+}
+move_light={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":76)]
+}
+toggle_debug={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":70)]
+}
+sprint={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":4194325)]
+}
+jump={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":32)]
+}
+break_block={
+"deadzone": 0.2,
+"events": [Object(InputEventMouseButton,"button_index":1)]
+}
+place_block={
+"deadzone": 0.2,
+"events": [Object(InputEventMouseButton,"button_index":2)]
+}
+save_world={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":75)]
+}
+load_world={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":74)]
+}
+debug_spawn_gangs={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":4194337)]
+}
+debug_spawn_lamp_eater={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":4194338)]
+}
+debug_spawn_cops={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":4194340)]
+}
+debug_local_gloom={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":4194339)]
+}
+mode_switch={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":81)]
+}
+pause_mouse={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":4194305)]
+}
+interact={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":69)]
+}
+toggle_flashlight={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":84)]
+}
+
+cartridge_next={
+"deadzone": 0.2,
+"events": [Object(InputEventMouseButton,"button_index":5)]
+}
+cartridge_prev={
+"deadzone": 0.2,
+"events": [Object(InputEventMouseButton,"button_index":4)]
+}
+[physics]
+
+3d/physics_engine="GodotPhysics3D"
+common/physics_ticks_per_second=60
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/default_filters/use_nearest_mipmap_filter=false
+anti_aliasing/quality/msaa_3d=0
+viewport/hdr_2d=true
+environment/defaults/default_clear_color=Color(0, 0, 0, 1)

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="GloomConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/gloom_config.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+tick_seconds = 1.0
+dark_rise_per_second = 0.006
+lit_fall_per_second = 0.018
+underground_multiplier = 2.0
+night_multiplier = 2.0
+spawn_threshold = 0.68
+rot_threshold = 0.84
+daylight_relief = 0.25
+noise_to_gloom_scale = 0.01
+max_rots_per_tick = 8

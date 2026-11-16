@@ -1,0 +1,59 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/main.gd" id="1_main"]
+[ext_resource type="Script" path="res://scripts/world/world.gd" id="2_world"]
+[ext_resource type="Script" path="res://scripts/player/player.gd" id="3_player"]
+[ext_resource type="Script" path="res://scripts/player/lumencaster.gd" id="4_lumencaster"]
+[ext_resource type="Script" path="res://scripts/world/day_night_cycle.gd" id="5_cycle"]
+[ext_resource type="Script" path="res://scripts/world/gloom_manager.gd" id="6_gloom"]
+[ext_resource type="Script" path="res://scripts/world/enemy_director.gd" id="7_enemies"]
+[ext_resource type="Environment" path="res://data/world/world_environment.tres" id="8_environment"]
+[ext_resource type="Script" path="res://scripts/player/lumencaster_viewmodel.gd" id="9_viewmodel"]
+[ext_resource type="Script" path="res://scripts/ui/game_hud.gd" id="10_hud"]
+[ext_resource type="Script" path="res://scripts/ui/screen_grade.gd" id="11_grade"]
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_main")
+
+[node name="VoxelWorld" type="Node3D" parent="."]
+script = ExtResource("2_world")
+
+[node name="Player" type="Node3D" parent="."]
+script = ExtResource("3_player")
+
+[node name="Lumencaster" type="Node3D" parent="Player"]
+script = ExtResource("4_lumencaster")
+
+[node name="Camera3D" type="Camera3D" parent="Player"]
+position = Vector3(0, 1.62, 0)
+current = true
+
+[node name="Viewmodel" type="Node3D" parent="Player/Camera3D"]
+position = Vector3(0.22, -0.19, -0.56)
+rotation = Vector3(0, 0.05, 0)
+scale = Vector3(0.85, 0.85, 0.85)
+script = ExtResource("9_viewmodel")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+rotation = Vector3(-0.785398, -0.610865, 0)
+light_energy = 0.0
+shadow_enabled = false
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = ExtResource("8_environment")
+
+[node name="DayNightCycle" type="Node" parent="."]
+script = ExtResource("5_cycle")
+
+[node name="GloomManager" type="Node" parent="."]
+script = ExtResource("6_gloom")
+
+[node name="EnemyDirector" type="Node" parent="."]
+script = ExtResource("7_enemies")
+
+[node name="ScreenGrade" type="CanvasLayer" parent="."]
+layer = 0
+script = ExtResource("11_grade")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("10_hud")

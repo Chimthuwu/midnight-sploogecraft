@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="EnemyConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/enemy_config.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+spawn_tick_seconds = 5.0
+max_active_enemies = 16
+threat_group_size = 3
+lamp_eater_spawn_chance = 0.2
+min_spawn_distance = 10.0
+max_spawn_distance = 28.0
+spawn_cooldown_seconds = 18.0
+lamp_eater_speed = 1.8
+lamp_eater_health = 34.0
+lamp_eater_damage = 7.0
+lamp_eater_attack_range = 1.5
+lamp_eater_extinguish_distance = 1.25
+lamp_eater_extinguish_seconds = 12.0
+lamp_eater_target_radius = 24.0
+lamp_eater_target_blocks = Array[StringName]([&"torch", &"street_lamp"])
+
+gang_speed = 2.9
+gang_health = 18.0
+gang_damage = 5.0
+gang_attack_range = 1.6
+
+police_speed = 3.2
+police_health = 30.0
+police_damage = 6.0
+police_attack_range = 1.8
+
+civilian_speed = 1.2
+civilian_health = 10.0
+civilian_damage = 0
