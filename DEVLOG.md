@@ -1,5 +1,33 @@
 # DEVLOG
 
+## 2026-11-17 — City rework, new blocks and rewritten bible
+
+### Done
+
+- Rewrote `BIBLE.md` as **v2** for this project (GTA-meets-Minecraft neon city): old Lumenfall biome/Cradle/seeding milestones removed; new rules explicitly allow new blocks, real-mesh vehicles/props and third-party assets, with visual quality as the priority.
+- Widened the road grid: 20-block districts, 7-block roads, sidewalks, 11-block lots, intersections at x/z == 9 mod 20; spawn moved to (9, 9).
+- Replaced axis-locked bouncing traffic with an intersection-graph AI: cars choose next junctions, steer into right-hand lanes, slow for turns/other vehicles and actually turn (verified node progression `(3,5)->(2,5)->(1,5)`).
+- Rewrote driving: throttle/brake/reverse, speed-sensitive steering without reversed steering in reverse, handbrake on Space, `move_and_slide` collision response, smoothed third-person follow camera.
+- Added eight new city blocks (glass dark/warm/cyan, brick, panel, crosswalk, traffic light, billboard) and used them in generation: zebra crossings, corner traffic lights, mixed facade materials, glass window grids and rooftop billboards. Neon block count dropped from ~4,400 to ~165.
+
+### Verified
+
+- `gda script validate --all` clean except the pre-existing `debug/m1_walk_test.gd:49` error; headless city check PASS including 7-wide roads, separated lanes, turning traffic, new blocks and determinism.
+- Windowed captures in `debug/evidence/city_*.png`, including a clean HUD-free `city_topdown.png`; copies saved to `C:\Users\Serge\Desktop\Midnight Sploogecraft City Shots`.
+
+### Next
+
+- User playtest / M5 acceptance, then player weapons + hostile-weapon integration.
+
+### Files changed this session
+
+- `BIBLE.md`, `scripts/world/world_generator.gd`, `scripts/world/vehicle.gd`, `scripts/world/enemy_director.gd`, `scripts/player/player.gd`, `scripts/world/world.gd`
+- `data/blocks/` (8 new blocks), `debug/city_capture.gd`, `debug/city_check.gd`, `debug/evidence/city_*.png`
+
+### Commit message
+
+`feat(city): rework roads, traffic AI and city block palette`
+
 ## 2026-11-17 — Driveable scale vehicles
 
 ### Done

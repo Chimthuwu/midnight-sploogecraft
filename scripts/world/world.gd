@@ -22,8 +22,8 @@ const FLASHLIGHT_OUTER_COS := 0.82
 const FLASHLIGHT_INTENSITY := 0.85
 const BLOCK_VOLUME := WORLD_X * WORLD_Y * WORLD_Z
 const CITY_GROUND := 2
-const CITY_SPAWN_X := 8
-const CITY_SPAWN_Z := 8
+const CITY_SPAWN_X := 9
+const CITY_SPAWN_Z := 9
 const BLOCK_RESOURCE_PATHS := [
 	"res://data/blocks/air.tres",
 	"res://data/blocks/asphalt.tres",
@@ -33,6 +33,13 @@ const BLOCK_RESOURCE_PATHS := [
 	"res://data/blocks/facade_dark.tres",
 	"res://data/blocks/facade_light.tres",
 	"res://data/blocks/facade_mid.tres",
+	"res://data/blocks/facade_brick.tres",
+	"res://data/blocks/facade_panel.tres",
+	"res://data/blocks/glass_cyan.tres",
+	"res://data/blocks/glass_dark.tres",
+	"res://data/blocks/glass_warm.tres",
+	"res://data/blocks/billboard.tres",
+	"res://data/blocks/crosswalk.tres",
 	"res://data/blocks/iron_ore.tres",
 	"res://data/blocks/lumen_crystal.tres",
 	"res://data/blocks/mycelium.tres",
@@ -50,6 +57,7 @@ const BLOCK_RESOURCE_PATHS := [
 	"res://data/blocks/street_lamp.tres",
 	"res://data/blocks/test_wall.tres",
 	"res://data/blocks/torch.tres",
+	"res://data/blocks/traffic_light.tres",
 	"res://data/blocks/window_cyan.tres",
 	"res://data/blocks/window_dark.tres",
 	"res://data/blocks/window_warm.tres",

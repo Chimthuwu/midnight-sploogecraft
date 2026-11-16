@@ -41,9 +41,10 @@ func _physics_process(delta: float) -> void:
 			_exit_vehicle()
 			return
 		var forward := Vector3(sin(driven_vehicle.yaw), 0.0, cos(driven_vehicle.yaw))
-		position = driven_vehicle.position - forward * 5.4 + Vector3(0.0, 0.7, 0.0)
-		# Camera looks down local -Z; add PI so it faces the vehicle's +Z forward.
-		rotation.y = driven_vehicle.yaw + PI
+		var desired := driven_vehicle.position - forward * 5.4 + Vector3(0.0, 0.7, 0.0)
+		var follow: float = 1.0 - exp(-delta * 9.0)
+		position = position.lerp(desired, follow)
+		rotation.y = lerp_angle(rotation.y, driven_vehicle.yaw + PI, follow)
 		nearby_vehicle = driven_vehicle
 		return
 	_update_nearby_vehicle()

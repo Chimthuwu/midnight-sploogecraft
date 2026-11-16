@@ -9,19 +9,19 @@ const CHUNKS_X := 8
 const CHUNKS_Y := 4
 const CHUNKS_Z := 8
 
-# Neon City layout. Roads run on lines x/z == 8 (mod 16), three blocks wide.
-# Each 16-block district is: road 7..9, sidewalk 6 and 10, lot 11..21, sidewalk 22,
-# then the next road at 23..25. Buildings are generated per LOT (not per chunk) so
-# they cross chunk borders intact and stay deterministic from the world seed.
+# Neon City layout, reworked for real traffic. A 20-block district grid gives
+# 7-block roads (three lanes each way), 1-block sidewalks and 11-block lots.
+# Intersections sit at x/z == 9 (mod 20) and are the nodes of the traffic graph.
 const CITY_GROUND := 2
-const ROAD_LINE := 8
-const ROAD_HALF_WIDTH := 1
-const DISTRICTS := 7
-const LOT_MIN_OFFSET := 3
-const LOT_MAX_OFFSET := 13
-const BUILDING_MIN_HEIGHT := 6
+const GRID_STEP := 20
+const ROAD_LINE := 9
+const ROAD_HALF_WIDTH := 3
+const SIDEWALK_DIST := 4
+const LOT_MIN_OFFSET := 5
+const LOT_MAX_OFFSET := 15
+const DISTRICTS := 6
+const BUILDING_MIN_HEIGHT := 7
 const BUILDING_MAX_HEIGHT := 26
-const LAMP_STRIDE := 12
 
 static func build_maps(world_seed: int) -> Dictionary:
 	var heights := PackedInt32Array()
@@ -61,10 +61,17 @@ static func generate_chunk(chunk_index: int, world_seed: int, heights: PackedInt
 		&"neon_pink": int(block_ids[&"neon_pink"]),
 		&"neon_blue": int(block_ids[&"neon_blue"]),
 		&"neon_yellow": int(block_ids[&"neon_yellow"]),
-		&"roof": int(block_ids[&"roof"])
+		&"roof": int(block_ids[&"roof"]),
+		&"glass_dark": int(block_ids[&"glass_dark"]),
+		&"glass_warm": int(block_ids[&"glass_warm"]),
+		&"glass_cyan": int(block_ids[&"glass_cyan"]),
+		&"facade_brick": int(block_ids[&"facade_brick"]),
+		&"facade_panel": int(block_ids[&"facade_panel"]),
+		&"crosswalk": int(block_ids[&"crosswalk"]),
+		&"traffic_light": int(block_ids[&"traffic_light"]),
+		&"billboard": int(block_ids[&"billboard"])
 	}
 
-	# Ground slab: asphalt roadway, pale sidewalk, darker concrete lots.
 	for z in range(CHUNK_SIZE):
 		for y in range(CHUNK_SIZE):
 			for x in range(CHUNK_SIZE):
@@ -76,19 +83,20 @@ static func generate_chunk(chunk_index: int, world_seed: int, heights: PackedInt
 				var surface_id: int = ids[&"concrete"]
 				if _is_road(world_x, world_z):
 					surface_id = ids[&"asphalt"]
-					if world_y == CITY_GROUND and _is_lane_marking(world_x, world_z):
+					if world_y == CITY_GROUND and _is_crosswalk(world_x, world_z):
+						surface_id = ids[&"crosswalk"]
+					elif world_y == CITY_GROUND and _is_lane_marking(world_x, world_z):
 						surface_id = ids[&"road_line"]
 				elif _is_sidewalk(world_x, world_z):
 					surface_id = ids[&"sidewalk"]
 				output[x + y * CHUNK_SIZE + z * CHUNK_SIZE * CHUNK_SIZE] = surface_id
 
-	# Buildings, generated per district lot and clipped into this chunk.
 	for gx in range(DISTRICTS):
 		for gz in range(DISTRICTS):
-			var lot_min_x := ROAD_LINE + gx * 16 + LOT_MIN_OFFSET
-			var lot_max_x := ROAD_LINE + gx * 16 + LOT_MAX_OFFSET
-			var lot_min_z := ROAD_LINE + gz * 16 + LOT_MIN_OFFSET
-			var lot_max_z := ROAD_LINE + gz * 16 + LOT_MAX_OFFSET
+			var lot_min_x := ROAD_LINE + gx * GRID_STEP + LOT_MIN_OFFSET
+			var lot_max_x := ROAD_LINE + gx * GRID_STEP + LOT_MAX_OFFSET
+			var lot_min_z := ROAD_LINE + gz * GRID_STEP + LOT_MIN_OFFSET
+			var lot_max_z := ROAD_LINE + gz * GRID_STEP + LOT_MAX_OFFSET
 			if lot_max_x < origin_x or lot_min_x > origin_x + CHUNK_SIZE - 1:
 				continue
 			if lot_max_z < origin_z or lot_min_z > origin_z + CHUNK_SIZE - 1:
@@ -98,47 +106,52 @@ static func generate_chunk(chunk_index: int, world_seed: int, heights: PackedInt
 			else:
 				_stamp_building(output, origin_x, origin_y, origin_z, world_seed, gx, gz, ids)
 
-	# Street lamps on sidewalk cells, spaced along the road grid.
 	for z in range(CHUNK_SIZE):
 		for x in range(CHUNK_SIZE):
 			var world_x := origin_x + x
 			var world_z := origin_z + z
 			if world_x < 0 or world_x >= WORLD_X or world_z < 0 or world_z >= WORLD_Z:
 				continue
-			if not _is_sidewalk(world_x, world_z):
-				continue
-			if (world_x + world_z) % LAMP_STRIDE != 0:
+			if not _is_sidewalk(world_x, world_z) or (world_x + world_z) % 12 != 0:
 				continue
 			_set_local(output, origin_x, origin_y, origin_z, world_x, CITY_GROUND + 1, world_z, ids[&"lamp"])
+
+	# Traffic lights on the four corners of each intersection.
+	for z in range(CHUNK_SIZE):
+		for x in range(CHUNK_SIZE):
+			var world_x := origin_x + x
+			var world_z := origin_z + z
+			if world_x < 0 or world_x >= WORLD_X or world_z < 0 or world_z >= WORLD_Z:
+				continue
+			if _line_distance(world_x) == SIDEWALK_DIST and _line_distance(world_z) == SIDEWALK_DIST:
+				_set_local(output, origin_x, origin_y, origin_z, world_x, CITY_GROUND + 1, world_z, ids[&"traffic_light"])
 
 	return output
 
 
-# One deterministic building per lot, built identically in every chunk it touches.
 static func _stamp_building(output: PackedByteArray, origin_x: int, origin_y: int, origin_z: int, world_seed: int, gx: int, gz: int, ids: Dictionary) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = _lot_seed(world_seed, gx, gz)
-	if rng.randf() < 0.10:
+	if rng.randf() < 0.08:
 		return
 	var width := 8 + rng.randi_range(0, 2)
 	var depth := 8 + rng.randi_range(0, 2)
-	var min_x := ROAD_LINE + gx * 16 + LOT_MIN_OFFSET + rng.randi_range(0, 11 - width)
-	var min_z := ROAD_LINE + gz * 16 + LOT_MIN_OFFSET + rng.randi_range(0, 11 - depth)
+	var slot_width := LOT_MAX_OFFSET - LOT_MIN_OFFSET + 1
+	var min_x := ROAD_LINE + gx * GRID_STEP + LOT_MIN_OFFSET + rng.randi_range(0, slot_width - width)
+	var min_z := ROAD_LINE + gz * GRID_STEP + LOT_MIN_OFFSET + rng.randi_range(0, slot_width - depth)
 	var max_x := min_x + width - 1
 	var max_z := min_z + depth - 1
 	var height := BUILDING_MIN_HEIGHT + rng.randi_range(0, BUILDING_MAX_HEIGHT - BUILDING_MIN_HEIGHT)
-	if rng.randf() < 0.25:
-		height = 8 + rng.randi_range(0, 8)
 	var base_y := CITY_GROUND + 1
-	var top_y := base_y + height - 1
-	if top_y >= WORLD_Y:
-		top_y = WORLD_Y - 1
-	var facade_id: int = ids[&"facade_dark"] if rng.randf() < 0.55 else (ids[&"facade_mid"] if rng.randf() < 0.65 else ids[&"facade_light"])
-	var window_id: int = ids[&"window_warm"] if rng.randf() < 0.5 else ids[&"window_cyan"]
-	var neon_id: int = ids[&"neon_pink"] if rng.randf() < 0.4 else (ids[&"neon_blue"] if rng.randf() < 0.6 else ids[&"neon_yellow"])
-	var sign_side := rng.randi_range(0, 3)
-	var band_low := base_y + maxi(3, int(height * 0.45))
-	var band_high := base_y + maxi(4, int(height * 0.78))
+	var top_y := mini(base_y + height - 1, WORLD_Y - 1)
+	var facade_ids := [ids[&"facade_dark"], ids[&"facade_mid"], ids[&"facade_light"], ids[&"facade_brick"], ids[&"facade_panel"]]
+	var facade_id: int = facade_ids[rng.randi_range(0, facade_ids.size() - 1)]
+	var accent_id: int = facade_ids[(rng.randi_range(0, facade_ids.size() - 1) + 1) % facade_ids.size()]
+	var window_id: int = ids[&"glass_warm"] if rng.randf() < 0.5 else ids[&"glass_cyan"]
+	var glass_dark_id: int = ids[&"glass_dark"]
+	var neon_id: int = ids[&"neon_pink"] if rng.randf() < 0.4 else (ids[&"neon_blue"] if rng.randf() < 0.65 else ids[&"neon_yellow"])
+	var band_y := base_y + maxi(3, int(height * 0.55))
+	var sign_face := rng.randi_range(0, 3)
 
 	for y in range(base_y, top_y + 1):
 		var inset := 0
@@ -153,50 +166,57 @@ static func _stamp_building(output: PackedByteArray, origin_x: int, origin_y: in
 		var vertical := y - base_y
 		for x in range(x0, x1 + 1):
 			for z in range(z0, z1 + 1):
-				var block_id: int = facade_id
+				var block_id: int = facade_id if (vertical / 5) % 2 == 0 else accent_id
 				var on_face := x == x0 or x == x1 or z == z0 or z == z1
 				if y == top_y:
 					block_id = ids[&"roof"]
 				elif on_face and vertical > 0:
 					var horizontal := z - z0 if x == x0 or x == x1 else x - x0
-					if vertical == 1 or vertical == 2:
-						# Shopfront band: alternating lit panels at street level.
-						if horizontal % 3 != 2:
-							block_id = neon_id
-					elif vertical == band_low or vertical == band_low + 1 or vertical == band_high or vertical == band_high + 1:
-						block_id = neon_id
+					var face_index := 0 if z == z0 else (1 if z == z1 else (2 if x == x0 else 3))
+					if vertical == 1 and horizontal % 4 == 0:
+						block_id = window_id
 					elif horizontal % 3 == 1 and vertical % 2 == 1:
-						var lit := int(_cell_hash(world_seed, x, y, z) % 100) < 72
-						block_id = window_id if lit else ids[&"window_dark"]
-					elif sign_side == 0 and z == z0 and vertical >= band_low and vertical < band_low + 5 and horizontal >= 1 and horizontal <= 3:
-						block_id = neon_id
-					elif sign_side == 1 and z == z1 and vertical >= band_high - 4 and vertical < band_high and horizontal >= 1 and horizontal <= 3:
+						var lit := int(_cell_hash(world_seed, x, y, z) % 100) < 66
+						block_id = window_id if lit else glass_dark_id
+					elif sign_face == face_index and vertical == band_y - base_y and horizontal >= 1 and horizontal <= mini(5, width - 2):
 						block_id = neon_id
 				_set_local(output, origin_x, origin_y, origin_z, x, y, z, block_id)
 
-	# Rooftop silhouette: a small plant box and an antenna mast.
 	var mid_x := (min_x + max_x) / 2
 	var mid_z := (min_z + max_z) / 2
 	_set_local(output, origin_x, origin_y, origin_z, mid_x - 1, top_y + 1, mid_z - 1, ids[&"roof"])
 	_set_local(output, origin_x, origin_y, origin_z, mid_x, top_y + 1, mid_z, ids[&"roof"])
 	_set_local(output, origin_x, origin_y, origin_z, mid_x, top_y + 2, mid_z, facade_id)
+	if height >= 15:
+		for dy in range(2):
+			for dx in range(-1, 2):
+				_set_local(output, origin_x, origin_y, origin_z, mid_x + dx, top_y - dy, min_z - 1, ids[&"billboard"])
 	if height >= 18:
-		_set_local(output, origin_x, origin_y, origin_z, mid_x, top_y + 3, mid_z, neon_id)
+		_set_local(output, origin_x, origin_y, origin_z, mid_x, top_y + 3, mid_z, ids[&"neon_blue"])
 
 
-# A small landmark plaza on the spawn-facing lot so the player starts in a city,
-# not an empty field.
 static func _stamp_plaza_monument(output: PackedByteArray, origin_x: int, origin_y: int, origin_z: int, ids: Dictionary) -> void:
-	var center_x := ROAD_LINE + LOT_MIN_OFFSET + 5
-	var center_z := ROAD_LINE + LOT_MIN_OFFSET + 5
+	var center := ROAD_LINE + LOT_MIN_OFFSET + 5
 	for y in range(CITY_GROUND + 1, CITY_GROUND + 6):
-		_set_local(output, origin_x, origin_y, origin_z, center_x, y, center_z, ids[&"facade_mid"])
+		_set_local(output, origin_x, origin_y, origin_z, center, y, center, ids[&"facade_mid"])
 	for dx in range(-1, 2):
 		for dz in range(-1, 2):
 			if absi(dx) == 1 and absi(dz) == 1:
 				continue
-			_set_local(output, origin_x, origin_y, origin_z, center_x + dx, CITY_GROUND + 1, center_z + dz, ids[&"neon_pink"])
-	_set_local(output, origin_x, origin_y, origin_z, center_x, CITY_GROUND + 6, center_z, ids[&"neon_sign"])
+			_set_local(output, origin_x, origin_y, origin_z, center + dx, CITY_GROUND + 1, center + dz, ids[&"neon_pink"])
+	_set_local(output, origin_x, origin_y, origin_z, center, CITY_GROUND + 6, center, ids[&"neon_sign"])
+
+
+static func _line_index(coord: int) -> int:
+	return roundi(float(coord - ROAD_LINE) / float(GRID_STEP))
+
+
+static func _line_center(coord: int) -> int:
+	return ROAD_LINE + GRID_STEP * _line_index(coord)
+
+
+static func _line_distance(coord: int) -> int:
+	return absi(coord - _line_center(coord))
 
 
 static func _lot_seed(world_seed: int, gx: int, gz: int) -> int:
@@ -212,28 +232,36 @@ static func _cell_hash(world_seed: int, x: int, y: int, z: int) -> int:
 
 
 static func _is_road(x: int, z: int) -> bool:
-	return _near_line(x) or _near_line(z)
+	return _line_distance(x) <= ROAD_HALF_WIDTH or _line_distance(z) <= ROAD_HALF_WIDTH
 
 
 static func _is_sidewalk(x: int, z: int) -> bool:
 	if _is_road(x, z):
 		return false
-	return _near_line(x + 1) or _near_line(x - 1) or _near_line(z + 1) or _near_line(z - 1)
+	return _line_distance(x) == SIDEWALK_DIST or _line_distance(z) == SIDEWALK_DIST
 
 
-# Dashed centre line, omitted at intersections so junctions read clearly.
+# Zebra stripes just outside each intersection, across both road axes.
+static func _is_crosswalk(x: int, z: int) -> bool:
+	var x_road := _line_distance(x) <= ROAD_HALF_WIDTH
+	var z_road := _line_distance(z) <= ROAD_HALF_WIDTH
+	if x_road and _line_distance(z) == ROAD_HALF_WIDTH:
+		return x % 2 == 0
+	if z_road and _line_distance(x) == ROAD_HALF_WIDTH:
+		return z % 2 == 0
+	return false
+
+
+# Dashed centre line: one cell on the road axis, omitted at intersections.
 static func _is_lane_marking(x: int, z: int) -> bool:
-	var x_line := _near_line(x)
-	var z_line := _near_line(z)
+	var x_line := _line_distance(x) == 0
+	var z_line := _line_distance(z) == 0
 	if x_line and z_line:
 		return false
+	if not (x_line or z_line):
+		return false
 	var offset := z - ROAD_LINE if x_line else x - ROAD_LINE
-	return x_line == (x % 16 == ROAD_LINE) and fposmod(float(offset), 4.0) < 2.0
-
-
-static func _near_line(coord: int) -> bool:
-	var k := roundi(float(coord - ROAD_LINE) / 16.0)
-	return absi(coord - (ROAD_LINE + 16 * k)) <= ROAD_HALF_WIDTH
+	return fposmod(float(offset), 4.0) < 2.0
 
 
 static func _set_local(output: PackedByteArray, origin_x: int, origin_y: int, origin_z: int, x: int, y: int, z: int, block_id: int) -> void:

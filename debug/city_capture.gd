@@ -21,7 +21,7 @@ func _car_report(label: String) -> void:
 	for node in cars:
 		var car := node as Vehicle
 		if car != null:
-			print("  CAR %s axis=%d dir=%.1f speed=%.1f kind=%s" % [str(car.position), car.move_axis, car.direction, car.speed, str(car.kind)])
+			print("  CAR %s speed=%.1f kind=%s node=%s->%s" % [str(car.position), car.speed, str(car.kind), str(car.current_node), str(car.next_node)])
 
 
 func _run() -> void:
@@ -44,12 +44,21 @@ func _run() -> void:
 	var camera: Camera3D = main.player.get_node("Camera3D")
 	await _capture("res://debug/evidence/city_spawn_night.png")
 
+	# Sky views: hide the HUD and viewmodel so the shots are clean city evidence.
+	main.get_node("HUD").visible = false
+	main.player.viewmodel.visible = false
+	camera.global_position = Vector3(64.0, 85.0, 64.0)
+	camera.rotation = Vector3(-PI * 0.5, 0.0, 0.0)
+	await _capture("res://debug/evidence/city_topdown.png")
+
 	camera.global_position = Vector3(24.0, 46.0, 24.0)
 	camera.look_at(Vector3(60.0, 4.0, 60.0), Vector3.UP)
 	await _capture("res://debug/evidence/city_overview.png")
+	main.get_node("HUD").visible = true
+	main.player.viewmodel.visible = true
 
-	camera.global_position = Vector3(8.5, 4.4, 8.5)
-	camera.look_at(Vector3(8.5, 3.4, 60.0), Vector3.UP)
+	camera.global_position = Vector3(9.5, 4.4, 9.5)
+	camera.look_at(Vector3(9.5, 3.4, 60.0), Vector3.UP)
 	await _capture("res://debug/evidence/city_avenue.png")
 
 	camera.global_position = Vector3(15.0, 6.0, 15.0)
@@ -57,15 +66,15 @@ func _run() -> void:
 	await _capture("res://debug/evidence/city_plaza.png")
 
 	# Close-up of a parked vehicle to verify the imported mesh scale.
-	camera.global_position = Vector3(12.5, 4.6, 17.5)
-	camera.look_at(Vector3(8.5, 3.6, 14.5), Vector3.UP)
+	camera.global_position = Vector3(14.5, 4.6, 17.5)
+	camera.look_at(Vector3(10.5, 3.6, 14.5), Vector3.UP)
 	await _capture("res://debug/evidence/city_vehicle_close.png")
 
 	# Enter a parked vehicle and capture the driving view.
 	var parked: Vehicle = null
 	for node in main.get_tree().get_nodes_in_group("vehicles"):
 		var candidate := node as Vehicle
-		if candidate != null and not candidate.is_traffic and candidate.position.distance_to(Vector3(8.5, 3.05, 14.5)) < 1.0:
+		if candidate != null and not candidate.is_traffic and candidate.position.distance_to(Vector3(10.5, 3.05, 14.5)) < 1.0:
 			parked = candidate
 			break
 	if parked != null:

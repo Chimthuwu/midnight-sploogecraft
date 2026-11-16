@@ -60,22 +60,19 @@ func _update_traffic(delta: float) -> void:
 func _spawn_traffic() -> void:
 	if len(traffic_cars) >= MAX_CARS:
 		return
-	var move_axis := rng.randi_range(0, 1)
-	var line := 8 + 16 * rng.randi_range(0, 6)
-	var dir := 1.0 if rng.randf() < 0.5 else -1.0
+	var node := Vector2i(rng.randi_range(0, 5), rng.randi_range(0, 5))
+	var directions := [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
+	var options: Array[Vector2i] = []
+	for direction in directions:
+		var candidate: Vector2i = node + direction
+		if candidate.x >= 0 and candidate.x < 6 and candidate.y >= 0 and candidate.y < 6:
+			options.append(candidate)
+	if options.is_empty():
+		return
+	var next_node: Vector2i = options[rng.randi() % options.size()]
 	var bike := rng.randf() < 0.22
-	# Two lanes per road, centred inside the three-block asphalt strip (7, 8, 9).
-	var lane_center := float(line) + (-0.5 if dir > 0.0 else 0.5)
-	var player_axis := player.position.x if move_axis == 0 else player.position.z
-	var along := clampf(player_axis + rng.randf_range(-26.0, 26.0), 6.0, 122.0)
-	var model_index := rng.randi_range(0, 6)
-	var vehicle_speed := rng.randf_range(9.0, 13.0) if bike else rng.randf_range(7.0, 11.0)
 	var car := Vehicle.new()
-	car.configure(move_axis, lane_center, dir, vehicle_speed, model_index, true, bike)
-	if move_axis == 0:
-		car.position = Vector3(along, float(CITY_GROUND) + 1.05, lane_center)
-	else:
-		car.position = Vector3(lane_center, float(CITY_GROUND) + 1.05, along)
+	car.configure_traffic(node, next_node, rng.randf_range(9.0, 13.0) if bike else rng.randf_range(8.0, 11.0), rng.randi_range(0, 6), bike)
 	get_parent().add_child(car)
 	traffic_cars.append(car)
 
@@ -83,15 +80,15 @@ func _spawn_traffic() -> void:
 # A few stationary vehicles near the spawn intersection so the player can
 # actually walk up and drive one without chasing moving traffic.
 func _spawn_parked_vehicles() -> void:
-	_spawn_parked(0, 8.5, 14.5, false, 4)
-	_spawn_parked(0, 14.5, 8.5, false, 5)
-	_spawn_parked(1, 8.5, 20.5, true, 0)
+	var y := float(CITY_GROUND) + 1.05
+	_spawn_parked(Vector3(10.5, y, 14.5), 0.0, false, 4)
+	_spawn_parked(Vector3(14.5, y, 10.5), PI * 0.5, false, 5)
+	_spawn_parked(Vector3(7.5, y, 17.5), PI, true, 0)
 
 
-func _spawn_parked(axis: int, x: float, z: float, bike: bool, model_index: int) -> void:
+func _spawn_parked(at: Vector3, facing_yaw: float, bike: bool, model_index: int) -> void:
 	var vehicle := Vehicle.new()
-	vehicle.configure(axis, x if axis == 1 else z, 1.0, 0.0, model_index, false, bike)
-	vehicle.position = Vector3(x, float(CITY_GROUND) + 1.05, z)
+	vehicle.configure_parked(at, facing_yaw, model_index, bike)
 	get_parent().add_child(vehicle)
 
 func _despawn_traffic() -> void:

@@ -26,22 +26,23 @@ func _run() -> void:
 	var road_line_id: int = world.block_ids[&"road_line"]
 	var sidewalk_id: int = world.block_ids[&"sidewalk"]
 	var concrete_id: int = world.block_ids[&"concrete"]
-	var warm_window_id: int = world.block_ids[&"window_warm"]
-	var cyan_window_id: int = world.block_ids[&"window_cyan"]
+	var warm_window_id: int = world.block_ids[&"glass_warm"]
+	var cyan_window_id: int = world.block_ids[&"glass_cyan"]
 
 	_check(world.generated_chunk_count == world.CHUNK_COUNT, "city chunks all generate", "count=%d" % world.generated_chunk_count)
 
-	# Road, dashed centre line, sidewalk and lot must be four distinct surfaces.
-	_check(world.get_block_id(Vector3i(8, 2, 22)) == asphalt_id, "roadway is asphalt", "cell=%d" % world.get_block_id(Vector3i(8, 2, 22)))
-	_check(world.get_block_id(Vector3i(8, 2, 20)) == road_line_id, "road has a dashed centre line", "cell=%d" % world.get_block_id(Vector3i(8, 2, 20)))
-	_check(world.get_block_id(Vector3i(10, 2, 20)) == sidewalk_id, "road edge has a sidewalk", "cell=%d" % world.get_block_id(Vector3i(10, 2, 20)))
-	_check(world.get_block_id(Vector3i(11, 2, 20)) == concrete_id, "lots are concrete", "cell=%d" % world.get_block_id(Vector3i(11, 2, 20)))
-	_check(world.get_block_id(Vector3i(8, 3, 8)) == world.air_id, "spawn plaza has open air above the street", "cell=%d" % world.get_block_id(Vector3i(8, 3, 8)))
+	# Roadway, dashed centre line, sidewalk and lot must be four distinct surfaces.
+	_check(world.get_block_id(Vector3i(9, 2, 15)) == asphalt_id, "wide roadway is asphalt", "cell=%d" % world.get_block_id(Vector3i(9, 2, 15)))
+	_check(world.get_block_id(Vector3i(6, 2, 15)) == asphalt_id and world.get_block_id(Vector3i(12, 2, 15)) == asphalt_id, "road is seven blocks wide", "left=%d right=%d" % [world.get_block_id(Vector3i(6, 2, 15)), world.get_block_id(Vector3i(12, 2, 15))])
+	_check(world.get_block_id(Vector3i(9, 2, 13)) == road_line_id, "road has a dashed centre line", "cell=%d" % world.get_block_id(Vector3i(9, 2, 13)))
+	_check(world.get_block_id(Vector3i(13, 2, 15)) == sidewalk_id, "road edge has a sidewalk", "cell=%d" % world.get_block_id(Vector3i(13, 2, 15)))
+	_check(world.get_block_id(Vector3i(14, 2, 15)) == concrete_id, "lots are concrete", "cell=%d" % world.get_block_id(Vector3i(14, 2, 15)))
+	_check(world.get_block_id(Vector3i(9, 3, 9)) == world.air_id, "spawn intersection has open air", "cell=%d" % world.get_block_id(Vector3i(9, 3, 9)))
 
 	# Buildings now have glowing window grids, not solid concrete cubes.
 	var windows := 0
-	for x in range(27, 38):
-		for z in range(27, 38):
+	for x in range(34, 45):
+		for z in range(34, 45):
 			for y in range(3, 32):
 				var cell_id: int = world.get_block_id(Vector3i(x, y, z))
 				if cell_id == warm_window_id or cell_id == cyan_window_id:
@@ -90,6 +91,9 @@ func _run() -> void:
 	_check(vehicle_count >= 4, "parked and traffic vehicles exist", "count=%d" % vehicle_count)
 	_check(bike_count > 0, "bikes spawn in the city", "bikes=%d" % bike_count)
 	_check(mesh_count >= vehicle_count, "vehicles have real meshes", "meshes=%d" % mesh_count)
+	var east_lane := Vehicle.lane_point(Vector2i(1, 1), Vector2i(2, 1))
+	var west_lane := Vehicle.lane_point(Vector2i(2, 1), Vector2i(1, 1))
+	_check(absf(east_lane.z - 30.5) < 0.01 and absf(west_lane.z - 27.5) < 0.01, "traffic uses two separated lanes", "east=%s west=%s" % [str(east_lane), str(west_lane)])
 
 	var first := WorldGenerator.generate_chunk(0, world.world_seed, world.heights, world.block_ids)
 	var second := WorldGenerator.generate_chunk(0, world.world_seed, world.heights, world.block_ids)
