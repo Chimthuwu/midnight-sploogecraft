@@ -13,13 +13,24 @@ const MODEL_SCENES := [
 	preload("res://assets/props/free_city/trashBag1.glb"),
 	preload("res://assets/props/free_city/trafficCone.glb")
 ]
-const TARGET_HEIGHTS := [5.0, 5.6, 1.3, 0.9, 1.5, 0.8, 1.2]
+const TARGET_HEIGHTS := [4.2, 4.8, 1.3, 0.9, 1.5, 0.8, 1.2]
+const PROP_COLORS := [
+	Color(0.10, 0.20, 0.15), Color(0.12, 0.22, 0.16), Color(0.26, 0.27, 0.29),
+	Color(0.22, 0.20, 0.17), Color(0.32, 0.14, 0.11), Color(0.20, 0.18, 0.16),
+	Color(0.34, 0.27, 0.12)
+]
 
 var world: VoxelWorld
 var spawned := false
+var prop_materials: Array[StandardMaterial3D] = []
 
 func _ready() -> void:
 	world = get_parent().get_node("VoxelWorld") as VoxelWorld
+	for color in PROP_COLORS:
+		var material := StandardMaterial3D.new()
+		material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		material.albedo_color = color
+		prop_materials.append(material)
 
 func _process(_delta: float) -> void:
 	if spawned or world == null or not world.is_generated:
@@ -57,31 +68,46 @@ func _make_prop(index: int) -> Node3D:
 	if scene == null:
 		return null
 	var instance := scene.instantiate()
-	var source := _first_mesh(instance) as MeshInstance3D
-	if source == null or source.mesh == null:
+	var meshes: Array = []
+	_collect_meshes(instance, meshes)
+	if meshes.is_empty():
 		instance.free()
 		return null
-	var aabb: AABB = source.mesh.get_aabb()
-	if aabb.size.y <= 0.01:
+	var combined := AABB(Vector3.ZERO, Vector3.ZERO)
+	var first := true
+	for child in meshes:
+		var source := child as MeshInstance3D
+		if source == null or source.mesh == null:
+			continue
+		var box: AABB = source.transform * source.mesh.get_aabb()
+		if first:
+			combined = box
+			first = false
+		else:
+			combined = combined.merge(box)
+	if first or combined.size.y <= 0.01:
 		instance.free()
 		return null
-	var factor: float = TARGET_HEIGHTS[index] / aabb.size.y
+	var factor: float = TARGET_HEIGHTS[index] / combined.size.y
+	var anchor := Vector3(combined.get_center().x, combined.position.y, combined.get_center().z)
 	var holder := Node3D.new()
-	var mesh_instance := MeshInstance3D.new()
-	mesh_instance.mesh = source.mesh
-	mesh_instance.scale = Vector3(factor, factor, factor)
-	mesh_instance.position = Vector3(-aabb.get_center().x * factor, -aabb.position.y * factor, -aabb.get_center().z * factor)
-	mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	holder.add_child(mesh_instance)
+	for child in meshes:
+		var source := child as MeshInstance3D
+		if source == null or source.mesh == null:
+			continue
+		var mesh_instance := MeshInstance3D.new()
+		mesh_instance.mesh = source.mesh
+		mesh_instance.scale = Vector3(factor, factor, factor)
+		mesh_instance.material_override = prop_materials[index % prop_materials.size()]
+		mesh_instance.position = (source.transform.origin - anchor) * factor
+		mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		holder.add_child(mesh_instance)
 	instance.free()
 	return holder
 
 
-func _first_mesh(node: Node) -> Node:
+func _collect_meshes(node: Node, result: Array) -> void:
 	if node is MeshInstance3D:
-		return node
+		result.append(node)
 	for child in node.get_children():
-		var found := _first_mesh(child)
-		if found != null:
-			return found
-	return null
+		_collect_meshes(child, result)

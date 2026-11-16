@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="BlockLightDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/light/block_light_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+block_id = &"neon_green"
+attenuation = 1
+albedo = Color(0.20, 1.0, 0.45, 1)
+glow_only = true

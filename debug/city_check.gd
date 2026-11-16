@@ -48,6 +48,22 @@ func _run() -> void:
 				if cell_id == warm_window_id or cell_id == cyan_window_id:
 					windows += 1
 	_check(windows > 0, "buildings have lit window grids", "windows=%d" % windows)
+	var rust_id: int = world.block_ids[&"rust_metal"]
+	var graffiti_id: int = world.block_ids[&"graffiti"]
+	var garage_id: int = world.block_ids[&"garage_door"]
+	var rust_count := 0
+	var graffiti_count := 0
+	var garage_count := 0
+	for block_id in world.blocks:
+		if block_id == rust_id:
+			rust_count += 1
+		elif block_id == graffiti_id:
+			graffiti_count += 1
+		elif block_id == garage_id:
+			garage_count += 1
+	_check(rust_count > 0, "industrial district has rust/containers", "blocks=%d" % rust_count)
+	_check(graffiti_count > 0, "outskirts have graffiti", "blocks=%d" % graffiti_count)
+	_check(garage_count > 0, "industrial buildings have loading bays", "blocks=%d" % garage_count)
 
 	var lamp_sources := 0
 	var neon_sources := 0
