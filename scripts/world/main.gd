@@ -17,6 +17,9 @@ func _ready() -> void:
 	player.process_mode = Node.PROCESS_MODE_PAUSABLE
 	$HUD.process_mode = Node.PROCESS_MODE_ALWAYS
 	debug_label.visible = false
+	var props := StreetProps.new()
+	props.name = "StreetProps"
+	add_child(props)
 
 func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed("toggle_debug"):

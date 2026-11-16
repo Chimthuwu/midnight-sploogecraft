@@ -141,7 +141,9 @@ static func _stamp_building(output: PackedByteArray, origin_x: int, origin_y: in
 	var min_z := ROAD_LINE + gz * GRID_STEP + LOT_MIN_OFFSET + rng.randi_range(0, slot_width - depth)
 	var max_x := min_x + width - 1
 	var max_z := min_z + depth - 1
-	var height := BUILDING_MIN_HEIGHT + rng.randi_range(0, BUILDING_MAX_HEIGHT - BUILDING_MIN_HEIGHT)
+	var height := BUILDING_MIN_HEIGHT + rng.randi_range(0, 17)
+	if rng.randf() < 0.30:
+		height = 24 + rng.randi_range(0, 14)
 	var base_y := CITY_GROUND + 1
 	var top_y := mini(base_y + height - 1, WORLD_Y - 1)
 	var facade_ids := [ids[&"facade_dark"], ids[&"facade_mid"], ids[&"facade_light"], ids[&"facade_brick"], ids[&"facade_panel"]]
@@ -173,13 +175,15 @@ static func _stamp_building(output: PackedByteArray, origin_x: int, origin_y: in
 				elif on_face and vertical > 0:
 					var horizontal := z - z0 if x == x0 or x == x1 else x - x0
 					var face_index := 0 if z == z0 else (1 if z == z1 else (2 if x == x0 else 3))
-					if vertical == 1 and horizontal % 4 == 0:
-						block_id = window_id
-					elif horizontal % 3 == 1 and vertical % 2 == 1:
-						var lit := int(_cell_hash(world_seed, x, y, z) % 100) < 66
-						block_id = window_id if lit else glass_dark_id
-					elif sign_face == face_index and vertical == band_y - base_y and horizontal >= 1 and horizontal <= mini(5, width - 2):
+					if sign_face == face_index and horizontal == 0 and vertical > 2:
 						block_id = neon_id
+					elif vertical == band_y - base_y and face_index == (sign_face + 1) % 4:
+						block_id = neon_id
+					elif vertical == 1 and horizontal % 2 == 0:
+						block_id = window_id
+					elif horizontal % 2 == 0 and vertical % 2 == 1:
+						var lit := int(_cell_hash(world_seed, x, y, z) % 100) < 60
+						block_id = window_id if lit else glass_dark_id
 				_set_local(output, origin_x, origin_y, origin_z, x, y, z, block_id)
 
 	var mid_x := (min_x + max_x) / 2

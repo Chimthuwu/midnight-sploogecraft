@@ -3,7 +3,7 @@ class_name DayNightCycle
 
 const CONFIG: DayNightConfig = preload("res://data/world/day_night_config.tres")
 const DAY_HORIZON_COLOR := Color(0.80, 0.74, 0.62, 1)
-const NIGHT_HORIZON_COLOR := Color(0.06, 0.08, 0.14, 1)
+const NIGHT_HORIZON_COLOR := Color(0.13, 0.05, 0.17, 1)
 const SUN_COLOR_DAY := Color(1.0, 0.88, 0.68, 1)
 const SUN_COLOR_LOW := Color(1.0, 0.56, 0.32, 1)
 const STARS_FULL_AT := 0.10
@@ -74,12 +74,12 @@ func _update_phase() -> void:
 	if is_instance_valid(environment):
 		environment.background_color = top_color
 		environment.fog_light_color = horizon_color.lerp(DAY_HORIZON_COLOR, 0.25 * daylight)
-		environment.fog_light_energy = lerpf(0.26, 0.62, daylight)
-		environment.fog_density = lerpf(0.0030, 0.0016, daylight)
+		environment.fog_light_energy = lerpf(0.34, 0.62, daylight)
+		environment.fog_density = lerpf(0.0045, 0.0016, daylight)
 		environment.ambient_light_color = top_color
 		environment.ambient_light_energy = ambient_level
 		if environment.glow_enabled:
-			environment.glow_intensity = lerpf(1.05, 0.85, daylight)
+			environment.glow_intensity = lerpf(1.30, 0.85, daylight)
 	if is_instance_valid(world):
 		world.set_ambient_sky_level(ambient_level)
 		_update_sun(star_energy)
@@ -90,7 +90,7 @@ func _update_sun(star_energy: float) -> void:
 	var day_progress := clampf(elapsed_seconds / maxf(CONFIG.day_seconds, 1.0), 0.0, 1.0)
 	var sun_angle := lerpf(0.65, PI - 0.55, day_progress)
 	var direction := Vector3(cos(sun_angle), sin(sun_angle), 0.45).normalized()
-	var strength := clampf(ambient_level / maxf(CONFIG.day_sky_level, 0.001), 0.0, 1.0) * 1.15
+	var strength := daylight * 1.15
 	var low_sun := (1.0 - clampf(sin(sun_angle) * 1.6, 0.0, 1.0)) * 0.65
 	var sun_color := SUN_COLOR_DAY.lerp(SUN_COLOR_LOW, low_sun)
 	world.set_sun(direction, sun_color, strength)
