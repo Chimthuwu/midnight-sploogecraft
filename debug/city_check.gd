@@ -19,26 +19,34 @@ func _check(condition: bool, label: String, detail := "") -> void:
 
 
 func _run() -> void:
-	while not main.world.is_generated:
+	while not main.world.is_generated or not main.player.spawned:
 		await process_frame
 	var world: VoxelWorld = main.world
 	var asphalt_id: int = world.block_ids[&"asphalt"]
+	var road_line_id: int = world.block_ids[&"road_line"]
+	var sidewalk_id: int = world.block_ids[&"sidewalk"]
 	var concrete_id: int = world.block_ids[&"concrete"]
-	var lamp_id: int = world.block_ids[&"street_lamp"]
-	var neon_id: int = world.block_ids[&"neon_sign"]
+	var warm_window_id: int = world.block_ids[&"window_warm"]
+	var cyan_window_id: int = world.block_ids[&"window_cyan"]
 
 	_check(world.generated_chunk_count == world.CHUNK_COUNT, "city chunks all generate", "count=%d" % world.generated_chunk_count)
 
-	_check(world.get_block_id(Vector3i(8, 2, 8)) == asphalt_id, "street intersection stays asphalt", "cell=%d" % world.get_block_id(Vector3i(8, 2, 8)))
+	# Road, dashed centre line, sidewalk and lot must be four distinct surfaces.
+	_check(world.get_block_id(Vector3i(8, 2, 22)) == asphalt_id, "roadway is asphalt", "cell=%d" % world.get_block_id(Vector3i(8, 2, 22)))
+	_check(world.get_block_id(Vector3i(8, 2, 20)) == road_line_id, "road has a dashed centre line", "cell=%d" % world.get_block_id(Vector3i(8, 2, 20)))
+	_check(world.get_block_id(Vector3i(10, 2, 20)) == sidewalk_id, "road edge has a sidewalk", "cell=%d" % world.get_block_id(Vector3i(10, 2, 20)))
+	_check(world.get_block_id(Vector3i(11, 2, 20)) == concrete_id, "lots are concrete", "cell=%d" % world.get_block_id(Vector3i(11, 2, 20)))
 	_check(world.get_block_id(Vector3i(8, 3, 8)) == world.air_id, "spawn plaza has open air above the street", "cell=%d" % world.get_block_id(Vector3i(8, 3, 8)))
 
-	var building_cells := 0
-	for z in range(16):
-		for y in range(3, 18):
-			for x in range(16):
-				if world.get_block_id(Vector3i(x, y, z)) == concrete_id:
-					building_cells += 1
-	_check(building_cells > 0, "city buildings are concrete blocks", "cells=%d" % building_cells)
+	# Buildings now have glowing window grids, not solid concrete cubes.
+	var windows := 0
+	for x in range(27, 38):
+		for z in range(27, 38):
+			for y in range(3, 32):
+				var cell_id: int = world.get_block_id(Vector3i(x, y, z))
+				if cell_id == warm_window_id or cell_id == cyan_window_id:
+					windows += 1
+	_check(windows > 0, "buildings have lit window grids", "windows=%d" % windows)
 
 	var lamp_sources := 0
 	var neon_sources := 0
@@ -50,7 +58,22 @@ func _run() -> void:
 		if world.block_defs[block_id].block_id == &"neon_sign":
 			neon_sources += 1
 	_check(lamp_sources > 0, "street lamps emit static light", "sources=%d" % lamp_sources)
-	_check(neon_sources > 0, "neon signs emit static light", "sources=%d" % neon_sources)
+	_check(neon_sources > 0, "plaza neon emits static light", "sources=%d" % neon_sources)
+	_check(len(world.static_light_sources) < 4000, "glow-only windows do not explode the light bake", "sources=%d" % len(world.static_light_sources))
+
+	# Cars must spawn ON the road surface (top face y=3), never inside the slab.
+	var car_wait := 0
+	while main.enemy_director.traffic_cars.is_empty() and car_wait < 1800:
+		await process_frame
+		car_wait += 1
+	var cars: Array = main.enemy_director.traffic_cars
+	_check(cars.size() > 0, "traffic cars spawn", "count=%d wait=%d" % [cars.size(), car_wait])
+	var cars_on_road := 0
+	for node in cars:
+		var car := node as TrafficCar
+		if car != null and car.position.y >= 3.0:
+			cars_on_road += 1
+	_check(cars.size() > 0 and cars_on_road == cars.size(), "traffic cars sit on the road, not inside it", "on_road=%d/%d" % [cars_on_road, cars.size()])
 
 	var first := WorldGenerator.generate_chunk(0, world.world_seed, world.heights, world.block_ids)
 	var second := WorldGenerator.generate_chunk(0, world.world_seed, world.heights, world.block_ids)
@@ -59,5 +82,5 @@ func _run() -> void:
 	if failures > 0:
 		quit(1)
 		return
-	print("NEON CITY CHECK PASS: blockout, lighting and determinism verified")
+	print("NEON CITY CHECK PASS: roads, windows, lighting, traffic and determinism verified")
 	quit(0)

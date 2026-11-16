@@ -46,7 +46,7 @@ const LIGHT_TINT_RADIUS := 12.0
 const WARM_LIGHT_TINT := Color(1.0, 0.66, 0.34)
 const COOL_LIGHT_TINT := Color(0.40, 0.82, 1.0)
 
-static func build(snapshot: PackedByteArray, light_snapshot: PackedByteArray, sky_snapshot: PackedByteArray, palette: PackedColorArray, air_id: int, fixture_ids: Dictionary = {}, emissive_ids: Dictionary = {}, light_sources: Array = []) -> Dictionary:
+static func build(snapshot: PackedByteArray, light_snapshot: PackedByteArray, sky_snapshot: PackedByteArray, palette: PackedColorArray, air_id: int, fixture_ids: Dictionary = {}, emissive_ids: Dictionary = {}, light_sources: Array = [], glow_ids: Dictionary = {}) -> Dictionary:
 	var vertices := PackedVector3Array()
 	var normals := PackedVector3Array()
 	var colors := PackedColorArray()
@@ -82,6 +82,9 @@ static func build(snapshot: PackedByteArray, light_snapshot: PackedByteArray, sk
 					var face_light := maxi(int(light_snapshot[cell_index]), int(light_snapshot[neighbor_index]))
 					var shade: float = FACE_SHADE[face] * variation
 					var light_alpha := float(face_light) / 15.0
+					# Visual-only emissive blocks (windows, signs) glow without a bake source.
+					if glow_ids.has(block_id):
+						light_alpha = 1.0
 					var tint := _light_tint(light_sources, Vector3(cell) + Vector3(0.5, 0.5, 0.5), light_alpha)
 					_calculate_corner_ao(snapshot, cell_index, face, air_id, face_ao)
 					_append_face(vertices, normals, colors, uv2, cell, face, face_ao, shade, base_color, light_alpha, sky_snapshot[cell_index] != 0, tint)
@@ -145,6 +148,11 @@ static func _append_fixture(vertices: PackedVector3Array, normals: PackedVector3
 		_append_box(vertices, normals, colors, uv2, origin + Vector3(0.5, 0.24, 0.5), Vector3(0.12, 0.48, 0.12), Color(0.22, 0.20, 0.21), light_alpha, sky_exposed)
 		_append_box(vertices, normals, colors, uv2, origin + Vector3(0.5, 0.54, 0.5), Vector3(0.24, 0.20, 0.24), block_color, light_alpha, sky_exposed)
 		_append_box(vertices, normals, colors, uv2, origin + Vector3(0.5, 0.67, 0.5), Vector3(0.16, 0.06, 0.16), Color(0.18, 0.16, 0.17), light_alpha, sky_exposed)
+	elif fixture == &"street_lamp":
+		var post_color := Color(0.12, 0.13, 0.16)
+		_append_box(vertices, normals, colors, uv2, origin + Vector3(0.5, 0.9, 0.5), Vector3(0.13, 1.8, 0.13), post_color, light_alpha, sky_exposed)
+		_append_box(vertices, normals, colors, uv2, origin + Vector3(0.66, 1.82, 0.5), Vector3(0.42, 0.09, 0.10), post_color, light_alpha, sky_exposed)
+		_append_box(vertices, normals, colors, uv2, origin + Vector3(0.84, 1.72, 0.5), Vector3(0.28, 0.12, 0.28), block_color, 1.0, sky_exposed)
 	elif fixture == &"mycelium":
 		_append_cross(vertices, normals, colors, uv2, origin, 0.32, 0.18 + tone * 0.12, block_color, light_alpha, sky_exposed, tone)
 	else:

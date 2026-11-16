@@ -56,20 +56,20 @@ func _update_traffic(delta: float) -> void:
 func _spawn_traffic() -> void:
 	if len(traffic_cars) >= MAX_CARS:
 		return
-	var car := TrafficCar.new() as TrafficCar
 	var move_axis := rng.randi_range(0, 1)
-	var line := 8 + 16 * rng.randi_range(0, 7)
+	var line := 8 + 16 * rng.randi_range(0, 6)
+	var dir := 1.0 if rng.randf() < 0.5 else -1.0
+	# Two lanes per road, centred inside the three-block asphalt strip (7, 8, 9).
+	var lane_center := float(line) + (-0.5 if dir > 0.0 else 0.5)
+	var player_axis := player.position.x if move_axis == 0 else player.position.z
+	var along := clampf(player_axis + rng.randf_range(-26.0, 26.0), 6.0, 122.0)
+	var car := TrafficCar.new()
 	if move_axis == 0:
-		car.move_axis = 0
-		car.fixed_coord = float(line - 1 + rng.randi_range(0, 2))
-		car.position = Vector3(8.0, float(CITY_GROUND), car.fixed_coord)
+		car.configure(0, lane_center, dir, rng.randf_range(7.0, 11.0), rng.randi_range(0, 5))
+		car.position = Vector3(along, float(CITY_GROUND) + 1.05, lane_center)
 	else:
-		car.move_axis = 1
-		car.fixed_coord = float(line - 1 + rng.randi_range(0, 2))
-		car.position = Vector3(car.fixed_coord, float(CITY_GROUND), 8.0)
-	car.min_dist = 6.0
-	car.max_dist = 122.0
-	car.direction = 1.0 if rng.randf() < 0.5 else -1.0
+		car.configure(1, lane_center, dir, rng.randf_range(7.0, 11.0), rng.randi_range(0, 5))
+		car.position = Vector3(lane_center, float(CITY_GROUND) + 1.05, along)
 	get_parent().add_child(car)
 	traffic_cars.append(car)
 

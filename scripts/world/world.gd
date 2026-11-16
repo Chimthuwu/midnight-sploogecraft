@@ -30,17 +30,29 @@ const BLOCK_RESOURCE_PATHS := [
 	"res://data/blocks/ashen_soil.tres",
 	"res://data/blocks/concrete.tres",
 	"res://data/blocks/dirt.tres",
+	"res://data/blocks/facade_dark.tres",
+	"res://data/blocks/facade_light.tres",
+	"res://data/blocks/facade_mid.tres",
 	"res://data/blocks/iron_ore.tres",
 	"res://data/blocks/lumen_crystal.tres",
 	"res://data/blocks/mycelium.tres",
+	"res://data/blocks/neon_blue.tres",
+	"res://data/blocks/neon_pink.tres",
 	"res://data/blocks/neon_sign.tres",
+	"res://data/blocks/neon_yellow.tres",
 	"res://data/blocks/pale_bloom.tres",
+	"res://data/blocks/road_line.tres",
+	"res://data/blocks/roof.tres",
 	"res://data/blocks/rotted_ashen_soil.tres",
 	"res://data/blocks/rotted_dirt.tres",
+	"res://data/blocks/sidewalk.tres",
 	"res://data/blocks/stone.tres",
 	"res://data/blocks/street_lamp.tres",
 	"res://data/blocks/test_wall.tres",
 	"res://data/blocks/torch.tres",
+	"res://data/blocks/window_cyan.tres",
+	"res://data/blocks/window_dark.tres",
+	"res://data/blocks/window_warm.tres",
 	"res://data/blocks/dead_wood.tres"
 ]
 const Generator = preload("res://scripts/world/world_generator.gd")
@@ -58,6 +70,7 @@ var block_ids: Dictionary = {}
 var palette := PackedColorArray()
 var fixture_ids: Dictionary = {}
 var emissive_ids: Dictionary = {}
+var glow_ids: Dictionary = {}
 var air_id := 0
 var attenuation := PackedByteArray()
 var emitted_light := PackedByteArray()
@@ -181,9 +194,12 @@ func _load_block_palette() -> void:
 		if block_ids.has(fixture):
 			fixture_ids[int(block_ids[fixture])] = fixture
 	emissive_ids.clear()
+	glow_ids.clear()
 	for index in range(block_defs.size()):
-		if block_defs[index].emitted_light > 0:
+		if block_defs[index].emitted_light > 0 or block_defs[index].glow_only:
 			emissive_ids[index] = true
+			if block_defs[index].glow_only:
+				glow_ids[index] = true
 
 func _create_chunk_nodes() -> void:
 	chunk_nodes.resize(CHUNK_COUNT)
@@ -331,7 +347,7 @@ func _light_sources_for_chunk(chunk_index: int) -> Array:
 
 
 func _mesh_chunk_task(chunk_index: int, block_snapshot: PackedByteArray, light_snapshot: PackedByteArray, sky_snapshot: PackedByteArray, light_sources: Array) -> void:
-	var mesh_data := Mesher.build(block_snapshot, light_snapshot, sky_snapshot, palette, air_id, fixture_ids, emissive_ids, light_sources)
+	var mesh_data := Mesher.build(block_snapshot, light_snapshot, sky_snapshot, palette, air_id, fixture_ids, emissive_ids, light_sources, glow_ids)
 	worker_mutex.lock()
 	mesh_results[chunk_index] = mesh_data
 	worker_mutex.unlock()

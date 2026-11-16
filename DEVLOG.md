@@ -1,5 +1,36 @@
 # DEVLOG
 
+## 2026-11-17 — Neon city visual overhaul
+
+### Done
+
+- Rebuilt `scripts/world/world_generator.gd`: 16-block districts with 3-wide roads, dashed centre lines, sidewalks and concrete lots; buildings generated per lot (not per chunk) so they cross chunk borders intact and stay seed-deterministic.
+- Added 12 city blocks (facades dark/mid/light, warm/cyan/dark windows, pink/blue/yellow neon, sidewalk, road line, roof). Added `glow_only` to `BlockLightDef` so windows/signs glow visually without becoming propagation sources — the bake stayed at 258 sources.
+- Buildings now have window grids, shopfront bands, signage strips, vertical signs, upper-floor setbacks, rooftop plant and antenna masts; the spawn-facing lot is a neon monument plaza.
+- Street lamps render as real posts with a glowing head (dedicated mesher fixture branch); cars spawn on the road surface (y=3.05) in two proper lanes with coloured bodies, wheels, headlights/taillights and direction-aware rotation.
+- City now opens at night (`DayNightCycle` starts 60 s into the night phase); added `debug/city_capture.gd`.
+
+### Verified
+
+- `gda script validate --all` clean except the pre-existing `debug/m1_walk_test.gd:49` error; `gda scene validate` clean.
+- Headless `debug/city_check.gd` PASS: roadway/centre line/sidewalk/lots distinct, window grids present, lamp + plaza neon sources, 258 bake sources, cars above the road, deterministic stamping.
+- Windowed capture run confirmed cars move (x 45.20→58.40, z 34.46→41.09) and produced `debug/evidence/city_spawn_night.png`, `city_overview.png`, `city_avenue.png`, `city_plaza.png`.
+
+### Next
+
+- User playtest / M5 acceptance, then player weapons + hostile-weapon integration.
+
+### Files changed this session
+
+- `scripts/world/world_generator.gd`, `scripts/world/world.gd`, `scripts/world/chunk_mesher.gd`, `scripts/world/traffic_car.gd`, `scripts/world/enemy_director.gd`, `scripts/world/day_night_cycle.gd`
+- `scripts/light/block_light_def.gd`
+- `data/blocks/` (12 new city blocks)
+- `debug/city_check.gd`, `debug/city_capture.gd`, `debug/evidence/city_*.png`
+
+### Commit message
+
+`feat(city): rebuild neon city visuals and traffic`
+
 ## 2026-11-17 — Neon city blockout and city threat loop
 
 ### Done

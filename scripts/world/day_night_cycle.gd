@@ -12,7 +12,9 @@ const STARS_GONE_AT := 0.38
 var world: VoxelWorld
 var environment: Environment
 var sky_material: ShaderMaterial
-var elapsed_seconds := 0.0
+# Open at night: day 420 s + twilight 120 s, then 60 s into the night phase.
+# This is a neon city; the dark is the presentation, not an end-state to wait for.
+var elapsed_seconds := 600.0
 var phase_name := "day"
 var phase_fraction := 0.0
 var ambient_level := 0.22

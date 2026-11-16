@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="BlockLightDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/light/block_light_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+block_id = &"window_dark"
+attenuation = 15
+albedo = Color(0.025, 0.05, 0.09, 1)
