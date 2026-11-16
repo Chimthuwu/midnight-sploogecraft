@@ -28,6 +28,7 @@ var health_fill: ColorRect
 var status_label: Label
 var hint_panel: Panel
 var hint_label: Label
+var vehicle_label: Label
 
 var pause_overlay: Control
 var pause_buttons: Array[Button] = []
@@ -46,6 +47,7 @@ func _ready() -> void:
 	_build_health()
 	_build_crosshair()
 	_build_hint()
+	_build_vehicle_prompt()
 	_build_pause()
 	_update_loadout()
 
@@ -58,6 +60,7 @@ func _process(_delta: float) -> void:
 	_update_status()
 	_update_hint()
 	_update_flashlight()
+	_update_vehicle_prompt()
 
 
 # --- Construction -----------------------------------------------------------
@@ -388,6 +391,28 @@ func _update_hint() -> void:
 	var fade := clampf(caster.hint_time / maxf(caster.hint_fade * 0.35, 0.001), 0.0, 1.0)
 	hint_panel.modulate.a = fade
 	hint_label.modulate.a = fade
+
+
+func _build_vehicle_prompt() -> void:
+	vehicle_label = _label("", 10, Color(0.42, 0.96, 0.90), HORIZONTAL_ALIGNMENT_CENTER)
+	vehicle_label.name = "VehiclePrompt"
+	vehicle_label.position = Vector2(277, 300)
+	vehicle_label.size = Vector2(300, 18)
+	vehicle_label.visible = false
+	add_child(vehicle_label)
+
+
+func _update_vehicle_prompt() -> void:
+	if vehicle_label == null or player == null:
+		return
+	if player.driven_vehicle != null:
+		vehicle_label.text = "WASD  DRIVE      E  EXIT VEHICLE"
+		vehicle_label.visible = true
+	elif player.nearby_vehicle != null:
+		vehicle_label.text = "E  ENTER VEHICLE"
+		vehicle_label.visible = true
+	else:
+		vehicle_label.visible = false
 
 
 # --- Pause ------------------------------------------------------------------

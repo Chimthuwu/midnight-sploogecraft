@@ -70,10 +70,26 @@ func _run() -> void:
 	_check(cars.size() > 0, "traffic cars spawn", "count=%d wait=%d" % [cars.size(), car_wait])
 	var cars_on_road := 0
 	for node in cars:
-		var car := node as TrafficCar
+		var car := node as Vehicle
 		if car != null and car.position.y >= 3.0:
 			cars_on_road += 1
 	_check(cars.size() > 0 and cars_on_road == cars.size(), "traffic cars sit on the road, not inside it", "on_road=%d/%d" % [cars_on_road, cars.size()])
+	var vehicle_count := 0
+	var bike_count := 0
+	var mesh_count := 0
+	for node in main.get_tree().get_nodes_in_group("vehicles"):
+		var vehicle := node as Vehicle
+		if vehicle == null:
+			continue
+		vehicle_count += 1
+		if vehicle.kind == &"bike":
+			bike_count += 1
+		for child in vehicle.get_children():
+			if child is MeshInstance3D or child is Node3D:
+				mesh_count += 1
+	_check(vehicle_count >= 4, "parked and traffic vehicles exist", "count=%d" % vehicle_count)
+	_check(bike_count > 0, "bikes spawn in the city", "bikes=%d" % bike_count)
+	_check(mesh_count >= vehicle_count, "vehicles have real meshes", "meshes=%d" % mesh_count)
 
 	var first := WorldGenerator.generate_chunk(0, world.world_seed, world.heights, world.block_ids)
 	var second := WorldGenerator.generate_chunk(0, world.world_seed, world.heights, world.block_ids)

@@ -19,9 +19,9 @@ func _car_report(label: String) -> void:
 	var cars: Array = main.enemy_director.traffic_cars
 	print("CITY %s cars=%d" % [label, cars.size()])
 	for node in cars:
-		var car := node as TrafficCar
+		var car := node as Vehicle
 		if car != null:
-			print("  CAR %s axis=%d dir=%.1f speed=%.1f" % [str(car.position), car.move_axis, car.direction, car.speed])
+			print("  CAR %s axis=%d dir=%.1f speed=%.1f kind=%s" % [str(car.position), car.move_axis, car.direction, car.speed, str(car.kind)])
 
 
 func _run() -> void:
@@ -55,4 +55,26 @@ func _run() -> void:
 	camera.global_position = Vector3(15.0, 6.0, 15.0)
 	camera.look_at(Vector3(16.5, 7.0, 16.5), Vector3.UP)
 	await _capture("res://debug/evidence/city_plaza.png")
+
+	# Close-up of a parked vehicle to verify the imported mesh scale.
+	camera.global_position = Vector3(12.5, 4.6, 17.5)
+	camera.look_at(Vector3(8.5, 3.6, 14.5), Vector3.UP)
+	await _capture("res://debug/evidence/city_vehicle_close.png")
+
+	# Enter a parked vehicle and capture the driving view.
+	var parked: Vehicle = null
+	for node in main.get_tree().get_nodes_in_group("vehicles"):
+		var candidate := node as Vehicle
+		if candidate != null and not candidate.is_traffic and candidate.position.distance_to(Vector3(8.5, 3.05, 14.5)) < 1.0:
+			parked = candidate
+			break
+	if parked != null:
+		camera.position = Vector3(0.0, 1.62, 0.0)
+		camera.rotation = Vector3.ZERO
+		main.player.set_physics_process(true)
+		main.player._enter_vehicle(parked)
+		for frame in range(24):
+			await process_frame
+		await _capture("res://debug/evidence/city_driving.png")
+		main.player._exit_vehicle()
 	quit(0)

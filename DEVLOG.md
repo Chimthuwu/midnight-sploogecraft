@@ -1,5 +1,35 @@
 # DEVLOG
 
+## 2026-11-17 — Driveable scale vehicles
+
+### Done
+
+- Added `assets/vehicles/` with seven imported PSX low-poly car models (sedans, police, taxi) plus their MTL/textures from the GGBot asset pack; source and licence note in `assets/vehicles/README.md`.
+- Replaced the 1.9 m placeholder cars with `scripts/world/vehicle.gd`: imported cars normalized to ~4.9 m with headlights, taillights, neon underglow and roof trim; bikes are a Godot port of SKYJUMP3D's low-poly neon bike (`bike_visual.gd`).
+- Traffic now mixes cars and bikes; three parked vehicles spawn by the start intersection so the player can actually walk up to one.
+- Added driving: `E` enters/exits the nearest vehicle, WASD throttles/steers with arcade physics, third-person camera follows behind the vehicle, viewmodel hides while driving, HUD shows `E ENTER VEHICLE` / `WASD DRIVE · E EXIT VEHICLE`.
+- Fixed the camera-forward mismatch (Godot camera looks down local -Z while vehicle forward is +Z).
+
+### Verified
+
+- `gda script validate --all` clean except the pre-existing `debug/m1_walk_test.gd:49` error; scene validate clean.
+- Headless `city_check` PASS including parked/traffic vehicle counts, bike presence and real meshes.
+- Windowed captures: `city_vehicle_close.png` shows a full-size car with headlights/underglow; `city_driving.png` confirms the third-person follow view with the car's neon trim and taillights in frame.
+
+### Next
+
+- User playtest / M5 acceptance, then player weapons + hostile-weapon integration.
+
+### Files changed this session
+
+- `assets/vehicles/` (new), `scripts/world/vehicle.gd`, `scripts/world/bike_visual.gd`
+- `scripts/world/enemy_director.gd`, `scripts/player/player.gd`, `scripts/ui/game_hud.gd`
+- `debug/city_check.gd`, `debug/city_capture.gd`, `debug/evidence/city_*.png`
+
+### Commit message
+
+`feat(vehicles): add real car/bike models and third-person driving`
+
 ## 2026-11-17 — Neon city visual overhaul
 
 ### Done

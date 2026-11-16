@@ -11,6 +11,7 @@ const COLLISION_EPSILON := 0.001
 const LOOK_SENSITIVITY := 0.0022
 
 @onready var camera: Camera3D = $Camera3D
+@onready var viewmodel: Node3D = $Camera3D/Viewmodel
 @onready var world = get_parent().get_node("VoxelWorld")
 
 var velocity := Vector3.ZERO
@@ -20,6 +21,8 @@ var spawned := false
 var health := 100.0
 var damage_cooldown := 0.0
 var axis_collided := PackedByteArray([0, 0, 0])
+var driven_vehicle: Vehicle
+var nearby_vehicle: Vehicle
 
 
 func _ready() -> void:
@@ -33,6 +36,17 @@ func _physics_process(delta: float) -> void:
 			position = world.get_city_spawn_position()
 			spawned = true
 		return
+	if driven_vehicle != null:
+		if not is_instance_valid(driven_vehicle):
+			_exit_vehicle()
+			return
+		var forward := Vector3(sin(driven_vehicle.yaw), 0.0, cos(driven_vehicle.yaw))
+		position = driven_vehicle.position - forward * 5.4 + Vector3(0.0, 0.7, 0.0)
+		# Camera looks down local -Z; add PI so it faces the vehicle's +Z forward.
+		rotation.y = driven_vehicle.yaw + PI
+		nearby_vehicle = driven_vehicle
+		return
+	_update_nearby_vehicle()
 	fixed_accumulator += delta
 	var steps := 0
 	while fixed_accumulator >= FIXED_STEP and steps < 4:
@@ -44,10 +58,57 @@ func _physics_process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("interact"):
+		_toggle_vehicle()
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		rotation.y -= event.relative.x * LOOK_SENSITIVITY
 		camera.rotation.x = clampf(camera.rotation.x - event.relative.y * LOOK_SENSITIVITY, -1.52, 1.52)
 
+
+func _update_nearby_vehicle() -> void:
+	nearby_vehicle = null
+	var best := 3.2
+	for node in get_tree().get_nodes_in_group("vehicles"):
+		var candidate := node as Vehicle
+		if candidate == null or candidate.driven:
+			continue
+		var distance := position.distance_to(candidate.position)
+		if distance < best:
+			best = distance
+			nearby_vehicle = candidate
+
+
+func _toggle_vehicle() -> void:
+	if not spawned:
+		return
+	if driven_vehicle != null:
+		_exit_vehicle()
+	elif nearby_vehicle != null:
+		_enter_vehicle(nearby_vehicle)
+
+
+func _enter_vehicle(vehicle: Vehicle) -> void:
+	vehicle.set_driven(true)
+	driven_vehicle = vehicle
+	nearby_vehicle = vehicle
+	velocity = Vector3.ZERO
+	if viewmodel != null:
+		viewmodel.visible = false
+
+
+func _exit_vehicle() -> void:
+	var vehicle := driven_vehicle
+	driven_vehicle = null
+	if not is_instance_valid(vehicle):
+		return
+	vehicle.set_driven(false)
+	var side := vehicle.global_basis * Vector3(1.9, 0.0, 0.0)
+	position = vehicle.position + Vector3(side.x, 0.0, side.z)
+	rotation.y = vehicle.yaw + PI
+	velocity = Vector3.ZERO
+	if viewmodel != null:
+		viewmodel.visible = true
+	nearby_vehicle = vehicle
 
 
 func _simulate_fixed_step(delta: float) -> void:
