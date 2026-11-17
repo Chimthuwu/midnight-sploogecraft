@@ -75,7 +75,7 @@ func _update_phase() -> void:
 		environment.background_color = top_color
 		environment.fog_light_color = horizon_color.lerp(DAY_HORIZON_COLOR, 0.25 * daylight)
 		environment.fog_light_energy = lerpf(0.42, 0.62, daylight)
-		environment.fog_density = lerpf(0.0038, 0.0016, daylight)
+		environment.fog_density = lerpf(0.0026, 0.0016, daylight)
 		environment.ambient_light_color = top_color
 		environment.ambient_light_energy = ambient_level
 		if environment.glow_enabled:

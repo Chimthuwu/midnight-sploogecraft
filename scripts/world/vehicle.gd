@@ -228,7 +228,9 @@ func _drive_player(delta: float) -> void:
 		speed = move_toward(speed, 0.0, HANDBRAKE * delta)
 	var steer := Input.get_axis("move_left", "move_right")
 	var grip := clampf(absf(speed) / 5.0, 0.0, 1.0)
-	yaw += steer * STEER_RATE * grip * delta
+	# Vehicle forward is +Z while the chase camera looks down -Z mirrored:
+	# subtract so pressing right turns the car right on screen.
+	yaw -= steer * STEER_RATE * grip * delta
 
 
 func set_driven(value: bool) -> void:

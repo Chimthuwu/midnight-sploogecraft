@@ -119,5 +119,10 @@ void fragment() {
 	vec3 cell = fract(fragment_world_position);
 	float edge_distance = min(min(cell.x, 1.0 - cell.x), min(min(cell.y, 1.0 - cell.y), min(cell.z, 1.0 - cell.z)));
 	float bevel = mix(0.82, 1.0, smoothstep(0.0, 0.10, edge_distance));
-	ALBEDO = COLOR.rgb * graded_light * light_tint * grain * bevel * mix(0.84, 1.0, value_noise(vec3(fragment_world_position.x * 7.0, fragment_world_position.y * 0.32, fragment_world_position.z * 7.0)));
+	// Key light carries energy above 1.0 so pools of light actually brighten
+	// surfaces past their albedo; a small constant cool floor plus a sky fill
+	// keeps unlit silhouettes readable instead of pure black.
+	vec3 key_light = light_tint * (graded_light * 1.45);
+	vec3 fill_light = sky_tint * (sky_light * 0.30) + vec3(0.16, 0.165, 0.19);
+	ALBEDO = COLOR.rgb * (key_light + fill_light) * grain * bevel * mix(0.84, 1.0, value_noise(vec3(fragment_world_position.x * 7.0, fragment_world_position.y * 0.32, fragment_world_position.z * 7.0)));
 }

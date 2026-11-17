@@ -150,10 +150,22 @@ static func _append_fixture(vertices: PackedVector3Array, normals: PackedVector3
 		_append_box(vertices, normals, colors, uv2, origin + Vector3(0.5, 0.54, 0.5), Vector3(0.24, 0.20, 0.24), block_color, light_alpha, sky_exposed)
 		_append_box(vertices, normals, colors, uv2, origin + Vector3(0.5, 0.67, 0.5), Vector3(0.16, 0.06, 0.16), Color(0.18, 0.16, 0.17), light_alpha, sky_exposed)
 	elif fixture == &"street_lamp":
-		var post_color := Color(0.12, 0.13, 0.16)
-		_append_box(vertices, normals, colors, uv2, origin + Vector3(0.5, 0.9, 0.5), Vector3(0.13, 1.8, 0.13), post_color, light_alpha, sky_exposed)
-		_append_box(vertices, normals, colors, uv2, origin + Vector3(0.66, 1.82, 0.5), Vector3(0.42, 0.09, 0.10), post_color, light_alpha, sky_exposed)
-		_append_box(vertices, normals, colors, uv2, origin + Vector3(0.84, 1.72, 0.5), Vector3(0.28, 0.12, 0.28), block_color, 1.0, sky_exposed)
+		# Classic glowing lantern on a dark post: visible from every direction.
+		var post_color := Color(0.10, 0.11, 0.14)
+		_append_box(vertices, normals, colors, uv2, origin + Vector3(0.5, 1.25, 0.5), Vector3(0.14, 2.5, 0.14), post_color, light_alpha, sky_exposed)
+		_append_box(vertices, normals, colors, uv2, origin + Vector3(0.5, 2.56, 0.5), Vector3(0.30, 0.10, 0.30), post_color, light_alpha, sky_exposed)
+		_append_box(vertices, normals, colors, uv2, origin + Vector3(0.5, 2.82, 0.5), Vector3(0.22, 0.42, 0.22), block_color, 1.0, sky_exposed)
+		_append_box(vertices, normals, colors, uv2, origin + Vector3(0.5, 3.09, 0.5), Vector3(0.30, 0.08, 0.30), post_color, light_alpha, sky_exposed)
+	elif fixture == &"traffic_light":
+		# Signal head with three lamps; the red lamp is lit, the rest idle.
+		var head_color := Color(0.07, 0.08, 0.10)
+		_append_box(vertices, normals, colors, uv2, origin + Vector3(0.5, 0.5, 0.5), Vector3(0.20, 0.74, 0.20), head_color, light_alpha, sky_exposed)
+		var lamp_colors := [Color(1.0, 0.14, 0.09), Color(0.45, 0.30, 0.08), Color(0.08, 0.34, 0.12)]
+		var lamp_glow := [1.0, 0.12, 0.12]
+		for index in range(3):
+			_append_box(vertices, normals, colors, uv2,
+				origin + Vector3(0.5, 0.72 - index * 0.22, 0.5), Vector3(0.11, 0.11, 0.26),
+				lamp_colors[index], lamp_glow[index], sky_exposed)
 	elif fixture == &"mycelium":
 		_append_cross(vertices, normals, colors, uv2, origin, 0.32, 0.18 + tone * 0.12, block_color, light_alpha, sky_exposed, tone)
 	else:

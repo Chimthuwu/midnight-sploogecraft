@@ -1,5 +1,27 @@
 # DEVLOG
 
+## 2026-11-17 — M6 visual rework: facade architecture, lighting energy, landmarks
+
+### Changed
+
+- Lighting root-cause fix in `shaders/light_dither.gdshader`: light is now an energy source (`graded_light * 1.45`) plus an absolute cool fill floor (`vec3(0.16, 0.165, 0.19)`) instead of a pure albedo multiplier that capped streets at albedo brightness. Dither gate kept for darkness/flashlight falloff.
+- `world_generator.gd` fully rewritten as style-programs (`deco`, `office`, `tenement`, `venue`, `warehouse`, `walkup`, `shed`): piers, recessed windows carved one block deep with floor-coherent lit patterns, ground-floor kits (shops with per-bay lit/dark storefronts + plinths, lobby, dock, marquee, stoop), sign bands, awnings, blade signs, cornices, parapets, roof kits (crown/tank/billboard/vents/ac/mast/bulkhead), balconies, alleys, container/scrap yards.
+- Four handcrafted landmarks: stepped deco tower with lit crown (3,3), Orbit Hall dome venue with marquee + blade sign (1,1), gasworks with smokestacks + gasometer (0,4), plaza obelisk + neon gateway at spawn (0,0).
+- Street language: yellow dashed centre line, white side dashes, zebra crosswalks kept out of intersections, manholes (2%), gutter drains (6%), lamps skip corners, traffic signals as three-lamp heads with a single lamp lit.
+- New blocks: `paint_white`, `manhole`, `door`, `drain`, `awning_red`, `awning_teal`; traffic_light registered as a mesher fixture.
+- Palette: asphalt 0.055→0.115, sidewalk 0.41, crosswalk 0.60, road_line now yellow, roof 0.15, graffiti no longer glow-only, street_lamp emitted 14, night sky 0.22, lighter night fog.
+- Vehicle steering sign flipped in `_drive_player` (vehicle is +Z-forward; chase camera mirrors it) — fixes "directions reversed when driving". Viewmodel scale 0.85→0.68 and repositioned; street prop heights reduced.
+
+### Verified
+
+- `gda script validate` clean on generator/mesher/world/vehicle/street_props/day_night.
+- Headless `city_check.gd`: all 23 checks pass with zero SCRIPT ERRORs (fixed venue landmark missing `neon`/`sign_face` program keys, missing `air`/`neon_sign` in `_block_table`, missing `_fill_box`).
+- 8-view windowed capture iterated 5 rounds: street level, neon street, looking up, skyline, venue, industrial, outskirts, driving. Fixed camera-inside-parked-car, floating gateway cubes, unbroken orange storefront bands, black-on-black facades, distant vantages streaming empty (player teleport hops in the capture script), pause-menu and drill-toast contamination. Final shots in `debug/evidence/m6_*.png` + Desktop folder.
+
+### Next
+
+- User acceptance of the slice; then facade nits (upper window density, crosswalk stripe width) before any new content or weapons.
+
 ## 2026-11-17 — City rework, new blocks and rewritten bible
 
 ### Done

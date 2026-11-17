@@ -6,4 +6,4 @@
 script = ExtResource("1")
 block_id = &"asphalt"
 attenuation = 1
-albedo = Color(0.055, 0.055, 0.06, 1)
+albedo = Color(0.115, 0.115, 0.125, 1)

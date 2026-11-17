@@ -6,4 +6,4 @@
 script = ExtResource("1")
 block_id = &"road_line"
 attenuation = 1
-albedo = Color(0.72, 0.70, 0.60, 1)
+albedo = Color(0.70, 0.55, 0.22, 1)

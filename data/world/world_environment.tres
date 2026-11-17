@@ -46,5 +46,5 @@ fog_sun_scatter = 0.35
 fog_density = 0.0016
 fog_aerial_perspective = 0.0
 fog_sky_affect = 0.22
-fog_height = 8.0
-fog_height_density = 0.05
+fog_height = 14.0
+fog_height_density = 0.03

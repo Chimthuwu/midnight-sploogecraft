@@ -16,10 +16,10 @@ const MAX_MESH_COMMITS_PER_FRAME := 1
 const MAX_MESH_DISPATCH_PER_FRAME := 1
 const LIGHT_FRAME_BUDGET_USEC := 7000
 const LIGHT_STEP_BATCH := 64
-const FLASHLIGHT_RANGE := 12.0
+const FLASHLIGHT_RANGE := 16.0
 const FLASHLIGHT_INNER_COS := 0.94
 const FLASHLIGHT_OUTER_COS := 0.82
-const FLASHLIGHT_INTENSITY := 0.85
+const FLASHLIGHT_INTENSITY := 1.0
 const BLOCK_VOLUME := WORLD_X * WORLD_Y * WORLD_Z
 const CITY_GROUND := 2
 const CITY_SPAWN_X := 9
@@ -44,6 +44,7 @@ const BLOCK_RESOURCE_PATHS := [
 	"res://data/blocks/crosswalk.tres",
 	"res://data/blocks/iron_ore.tres",
 	"res://data/blocks/lumen_crystal.tres",
+	"res://data/blocks/manhole.tres",
 	"res://data/blocks/mycelium.tres",
 	"res://data/blocks/neon_blue.tres",
 	"res://data/blocks/neon_green.tres",
@@ -51,6 +52,7 @@ const BLOCK_RESOURCE_PATHS := [
 	"res://data/blocks/neon_red.tres",
 	"res://data/blocks/neon_sign.tres",
 	"res://data/blocks/neon_yellow.tres",
+	"res://data/blocks/paint_white.tres",
 	"res://data/blocks/pale_bloom.tres",
 	"res://data/blocks/road_line.tres",
 	"res://data/blocks/roof.tres",
@@ -67,7 +69,11 @@ const BLOCK_RESOURCE_PATHS := [
 	"res://data/blocks/window_cyan.tres",
 	"res://data/blocks/window_dark.tres",
 	"res://data/blocks/window_warm.tres",
-	"res://data/blocks/dead_wood.tres"
+	"res://data/blocks/dead_wood.tres",
+	"res://data/blocks/door.tres",
+	"res://data/blocks/drain.tres",
+	"res://data/blocks/awning_red.tres",
+	"res://data/blocks/awning_teal.tres"
 ]
 const Generator = preload("res://scripts/world/world_generator.gd")
 const ChunkScript = preload("res://scripts/world/chunk.gd")
@@ -204,7 +210,7 @@ func _load_block_palette() -> void:
 		if definition.block_id == &"air":
 			air_id = block_index
 	fixture_ids.clear()
-	for fixture in [&"torch", &"street_lamp", &"pale_bloom", &"mycelium"]:
+	for fixture in [&"torch", &"street_lamp", &"pale_bloom", &"mycelium", &"traffic_light"]:
 		if block_ids.has(fixture):
 			fixture_ids[int(block_ids[fixture])] = fixture
 	emissive_ids.clear()

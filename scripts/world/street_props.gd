@@ -11,7 +11,7 @@ const MODEL_SCENES := [
 	preload("res://assets/props/free_city/trashBag1.glb"),
 	preload("res://assets/props/free_city/trafficCone.glb")
 ]
-const TARGET_HEIGHTS := [1.3, 0.9, 1.5, 0.8, 1.2]
+const TARGET_HEIGHTS := [1.1, 0.85, 0.75, 0.55, 0.7]
 const PROP_COLORS := [
 	Color(0.26, 0.27, 0.29), Color(0.22, 0.20, 0.17), Color(0.32, 0.14, 0.11),
 	Color(0.20, 0.18, 0.16), Color(0.34, 0.27, 0.12)

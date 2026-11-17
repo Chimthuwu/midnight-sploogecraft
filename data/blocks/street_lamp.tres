@@ -7,4 +7,4 @@ script = ExtResource("1")
 block_id = &"street_lamp"
 attenuation = 1
 albedo = Color(1.0, 0.72, 0.42, 1)
-emitted_light = 12
+emitted_light = 14
