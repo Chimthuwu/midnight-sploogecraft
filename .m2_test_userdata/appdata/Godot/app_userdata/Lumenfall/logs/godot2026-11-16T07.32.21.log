@@ -1,0 +1,26 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+M1 world generated seed=139732 size=128x64x128 chunks=256
+M1 block count air=700466
+M1 block count ashen_soil=16384
+M1 block count dirt=65536
+M1 block count stone=265532
+M1 block count iron_ore=611
+M1 block count lumen_crystal=46
+M1 block count torch=1
+M1 block count mycelium=0
+M1 block count pale_bloom=0
+M1 biome count Ashen Flats columns=16384; underground cave air voxels=13682
+WARNING: M1 10 consecutive >20ms frames; draw_calls=0 active_chunks=64 phase=light
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _check_slow_frame (res://scripts/world/world.gd:589)
+       [1] _process (res://scripts/world/world.gd:122)
+WARNING: M1 10 consecutive >20ms frames; draw_calls=0 active_chunks=82 phase=light
+   at: push_warning (core/variant/variant_utility.cpp:1033)
+   GDScript backtrace (most recent call first):
+       [0] _check_slow_frame (res://scripts/world/world.gd:589)
+       [1] _process (res://scripts/world/world.gd:122)
+M2 incremental light bake complete: chunks=256 frames=192 budget_us=8000 max_frame_work_us=9814

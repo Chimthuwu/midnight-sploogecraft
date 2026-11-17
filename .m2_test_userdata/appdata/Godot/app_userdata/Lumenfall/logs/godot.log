@@ -1,0 +1,16 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+M1 world generated seed=139732 size=128x64x128 chunks=256
+M1 block count air=700466
+M1 block count ashen_soil=16384
+M1 block count dirt=65536
+M1 block count stone=265532
+M1 block count iron_ore=611
+M1 block count lumen_crystal=46
+M1 block count torch=1
+M1 block count mycelium=0
+M1 block count pale_bloom=0
+M1 biome count Ashen Flats columns=16384; underground cave air voxels=13682
+M2 incremental light bake complete: chunks=256 frames=93 budget_us=7000 max_frame_work_us=8278
