@@ -26,13 +26,27 @@ The user's current task prompt and direct instructions are the primary creative 
 
 ## Intended game direction
 
-The broad ambition is a dark, neon-soaked urban sandbox with the freedom and recognisable city energy of places such as Shinjuku, Shibuya/Kabukicho, and Times Square.
+The current goal is a distinctive, dark neon urban sandbox with the recognisable city energy of places such as Shinjuku, Shibuya/Kabukicho, and Times Square.
 
 The city should feel dense, lived-in, explorable, and visually distinctive: striking architecture, varied neighbourhoods, nightlife, signs and huge displays, street-level businesses, traffic, vehicles, wet or reflective surfaces where appropriate, alleys, rooftops, industrial areas, and genuinely dark/abandoned pockets.
 
 **Do not feel locked to Minecraft-style graphics or an entirely voxel world.** A hybrid approach is encouraged: use conventional meshes, modular architecture, authored or generated assets, and voxel/block geometry wherever each makes the most sense. Buildings do not all need to be made of cubes; cars and ordinary props should use appropriate meshes. Keep block-based interaction where it serves mining, building, editing, or destruction gameplay.
 
 Choose and implement a cohesive art direction rather than merely adding more random detail or neon. Visual quality and strong composition matter more than raw object counts.
+
+## Current gameplay scope
+
+For this development phase, prioritise:
+
+1. **The city and urban sandbox:** exploration, distinct neighbourhoods, architecture, streets, environmental detail, and a convincing sense of place.
+2. **Light and darkness:** preserve and improve the existing illumination, flashlight, Gloom, and enemy interactions.
+3. **The Lumencaster:** preserve and improve its existing mining, block removal, construction/placement, cartridge/resource, and relevant light-related functionality.
+4. **Vehicles and movement:** preserve and improve the existing on-foot and vehicle experience without breaking handling, traffic, or camera behaviour.
+5. **Existing enemies and survival gameplay:** maintain the relationship between darkness, illumination, threats, and exploration.
+
+**Do not add a Gravity Gun / Gravity Manipulator or a Portal Gun / Portal Device in this phase.** Do not prototype them, add supporting architecture for them, or divert time into their design. They are out of current scope unless the user explicitly brings them back in a future instruction.
+
+Do not let speculative future features distract from making the existing city, lighting, tools, vehicles, and survival loop excellent.
 
 ## Core gameplay identity to protect: light and darkness
 
@@ -42,18 +56,13 @@ Audit the actual Midnight Sploogecraft implementation before changing it. In par
 
 Preserve useful existing behaviour and performance unless a replacement is demonstrated to be better and is verified. Do not break flashlight updates by causing unnecessary chunk rebuilds/remeshing. Darkness should have gameplay consequences; light should affect visibility, safety, exploration, and enemy behaviour.
 
-The exact implementation must be confirmed from this repository's source code. Do not infer that a feature works merely because it appears in a name, old note, or design idea.
+The exact implementation must be confirmed from this repository's source code. Do not infer that a feature works merely because it appears in a name or design idea.
 
-## Tools and gameplay aspirations
+## The Lumencaster
 
 The existing Lumencaster/tool should be audited and improved rather than casually discarded. Preserve its useful block excavation, mining, placement/construction, cartridge/resource, and relevant light-related capabilities while exploring a much better model, feel, animations, firing/mining/building feedback, sound, and interaction design.
 
-The user is also interested in expanding the sandbox with:
-
-- **Gravity Manipulator:** a physics-based tool to grab, pull, hold, rotate, release, and launch suitable objects. Start with small, stable physics objects. Investigate heavier objects and vehicles as a separate integration; do not assume cars can safely be treated like lightweight rigid bodies.
-- **Portal Device:** linked portals for player traversal and physics-object transportation. Prototype reliable placement, rendering, collision, and momentum transfer before integrating broadly. Vehicle traversal is an ambitious later extension, not an assumed first milestone.
-
-These are creative goals to investigate and prototype in stages, not permission to implement all systems at once or to claim incomplete prototypes are finished. Let technical findings guide the sequence.
+Do not replace functioning tool mechanics with a purely cosmetic redesign. Improve the presentation while verifying that the actual gameplay modes still work.
 
 ## Asset library workflow
 
@@ -64,13 +73,13 @@ Only bring assets into Midnight Sploogecraft when they improve the actual result
 ## Source of truth and archive boundaries
 
 - The current Midnight Sploogecraft source code is the authority for what is implemented.
-- The user's current prompt is the authority for the new creative direction.
-- This `AGENTS.md` file is the authority for workspace boundaries and this handoff context.
+- The user's current prompt is the authority for the creative direction and current priorities.
+- This `AGENTS.md` file is the authority for workspace boundaries and durable handoff context.
 - The repository contains an `archived(old docs)/` directory. **Treat it as historical archive only. Do not read it, search it, copy from it, restore it, or use it as current instructions.** It is deliberately retained for history, not as active agent context.
 - Skip generated/editor/test-user-data folders such as `.m2_test_userdata/` when looking for gameplay architecture or project instructions.
 - Do not inspect external repositories, sibling folders, or other games to reconstruct project history. Work from the current project only.
 
-Do not invent historical facts or assume the old project documents are still authoritative. As part of the reboot, establish fresh current documentation from verified source inspection and the user's current brief.
+Do not invent historical facts or assume old project documents are still authoritative. Establish fresh current documentation from verified source inspection and the user's current brief.
 
 ## Working style and safety
 
@@ -82,7 +91,7 @@ Do not invent historical facts or assume the old project documents are still aut
 6. Test actual runtime behaviour where possible. Use windowed captures for visual claims; headless checks alone do not establish visual quality.
 7. Distinguish clearly between implemented, tested, visually inspected, partially implemented, and merely proposed features.
 8. Never claim success for a system or visual improvement that was not actually verified.
-9. Keep the project’s new documentation current. Preserve historical development records if they are retained, but do not revive archived requirements.
+9. Keep the project's new documentation current. Preserve historical development records if they are retained, but do not revive archived requirements.
 10. Do not commit, push, delete, overwrite, or perform other irreversible Git/repository operations unless the user explicitly authorises them.
 
 ## First-session expectations
